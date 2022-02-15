@@ -16,6 +16,7 @@ import QGroundControl               1.0
 import QGroundControl.Palette       1.0
 import QGroundControl.Controls      1.0
 import QGroundControl.ScreenTools   1.0
+import QGroundControl.LoginModel  1.0
 
 Rectangle {
     id:     settingsView
@@ -62,8 +63,10 @@ Rectangle {
                     text:               modelData.title
                     autoExclusive:      true
                     Layout.fillWidth:   true
+                    visible:  (modelData.title === "General" || modelData.title === "Offline Maps" || modelData.title === "Help") || HCLoginModel.isAdvanceUser
 
                     onClicked: {
+                        console.log(modelData.title)
                         if (mainWindow.preventViewSwitch()) {
                             return
                         }

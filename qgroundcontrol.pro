@@ -27,7 +27,8 @@ message(Qt version $$[QT_VERSION])
 
 include(QGCCommon.pri)
 
-TARGET   = QGroundControl
+//TARGET   = QGroundControl
+TARGET = HCGroundControl
 TEMPLATE = app
 QGCROOT  = $$PWD
 
@@ -49,17 +50,20 @@ LinuxBuild {
 }
 
 WindowsBuild {
-    RC_ICONS = resources/icons/qgroundcontrol.ico
-    CONFIG += resources_big
+    RC_ICONS = resources/HCRoboticsLogo.ico
+    CONFIG += resources_big \
+              installer
+
 }
 
 #
 # Branding
 #
 
-QGC_APP_NAME        = "QGroundControl"
-QGC_ORG_NAME        = "QGroundControl.org"
-QGC_ORG_DOMAIN      = "org.qgroundcontrol"
+//QGC_APP_NAME        = "QGroundControl"
+QGC_APP_NAME        = "HCGroundControl"
+QGC_ORG_NAME        = "hcgcs.com"
+QGC_ORG_DOMAIN      = "com.hcgcs"
 QGC_APP_DESCRIPTION = "Open source ground control app provided by QGroundControl dev team"
 QGC_APP_COPYRIGHT   = "Copyright (C) 2019 QGroundControl Development Team. All rights reserved."
 
@@ -435,6 +439,7 @@ HEADERS += \
     src/api/QGCSettings.h \
     src/api/QmlComponentInfo.h \
     src/GPS/Drivers/src/base_station.h \
+    src/hcloginmodel.h
 
 contains (DEFINES, QGC_ENABLE_PAIRING) {
     HEADERS += \
@@ -447,6 +452,7 @@ SOURCES += \
     src/api/QGCOptions.cc \
     src/api/QGCSettings.cc \
     src/api/QmlComponentInfo.cc \
+    src/hcloginmodel.cpp
 
 contains (DEFINES, QGC_ENABLE_PAIRING) {
     SOURCES += \

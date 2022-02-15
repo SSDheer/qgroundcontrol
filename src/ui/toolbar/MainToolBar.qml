@@ -22,6 +22,7 @@ import QGroundControl.Controllers           1.0
 Rectangle {
     id:     _root
     color:  qgcPal.toolbarBackground
+    anchors.right: parent.right
 
     property int currentToolbar: flyViewToolbar
 
@@ -41,8 +42,9 @@ Rectangle {
         anchors.right:  parent.right
         anchors.bottom: parent.bottom
         height:         1
-        color:          "black"
-        visible:        qgcPal.globalTheme === QGCPalette.Light
+        color:          "white"
+        //visible:        qgcPal.globalTheme === QGCPalette.Light
+        visible:        false
     }
 
     Rectangle {
@@ -57,19 +59,38 @@ Rectangle {
         }
     }
 
+
+
     RowLayout {
         id:                     viewButtonRow
         anchors.bottomMargin:   1
         anchors.top:            parent.top
         anchors.bottom:         parent.bottom
-        spacing:                ScreenTools.defaultFontPixelWidth / 2
+        anchors.left: parent.left
+        spacing:                ScreenTools.defaultFontPixelWidth/2
 
-        QGCToolBarButton {
+        Rectangle{
+            anchors.fill : currentButton
+            color: "white"
+            radius: 5
+        }
+
+        Image {
+            anchors.left:  parent.left
+            anchors.bottom: parent.bottom
+            anchors.top : parent.top
+            height: parent.height
+            Layout.alignment: Qt.AlignHCenter | Qt.AlignTop
             id:                     currentButton
             Layout.preferredHeight: viewButtonRow.height
-            icon.source:            "/res/QGCLogoFull"
-            logo:                   true
-            onClicked:              mainWindow.showToolSelectDialog()
+            source:            "/res/full_logo"   //@Team HCROBO {"/res/QGCLogoFull"}
+            fillMode: Image.PreserveAspectFit
+            //logo:                   true
+
+            MouseArea{
+                anchors.fill : currentButton
+                onClicked:              mainWindow.showToolSelectDialog()
+            }
         }
 
         MainStatusIndicator {
@@ -96,25 +117,30 @@ Rectangle {
         contentWidth:           indicatorLoader.x + indicatorLoader.width
         flickableDirection:     Flickable.HorizontalFlick
 
-        Loader {
-            id:                 indicatorLoader
-            anchors.left:       parent.left
-            anchors.top:        parent.top
-            anchors.bottom:     parent.bottom
-            source:             currentToolbar === flyViewToolbar ?
-                                    "qrc:/toolbar/MainToolBarIndicators.qml" :
-                                    (currentToolbar == planViewToolbar ? "qrc:/qml/PlanToolBarIndicators.qml" : "")
-        }
+            Loader {
+                id:                 indicatorLoader
+                anchors.left:       parent.left
+                anchors.right:      parent.right
+                anchors.top:        parent.top
+                anchors.bottom:     parent.bottom
+                source:             currentToolbar === flyViewToolbar ?
+                                        "qrc:/toolbar/MainToolBarIndicators.qml" :
+                                        (currentToolbar == planViewToolbar ? "qrc:/qml/PlanToolBarIndicators.qml" : "")
+            }
     }
 
     //-------------------------------------------------------------------------
     //-- Branding Logo
+
+
     Image {
         anchors.right:          parent.right
         anchors.top:            parent.top
         anchors.bottom:         parent.bottom
         anchors.margins:        ScreenTools.defaultFontPixelHeight * 0.66
+        //@Team HC Robo
         visible:                currentToolbar !== planViewToolbar && _activeVehicle && !_communicationLost && x > (toolsFlickable.x + toolsFlickable.contentWidth + ScreenTools.defaultFontPixelWidth)
+        //visible: false
         fillMode:               Image.PreserveAspectFit
         source:                 _outdoorPalette ? _brandImageOutdoor : _brandImageIndoor
         mipmap:                 true

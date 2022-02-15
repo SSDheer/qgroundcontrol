@@ -23,6 +23,8 @@ Item {
     id:             _root
     anchors.top:    parent.top
     anchors.bottom: parent.bottom
+    anchors.right: parent.right
+    height: parent.height
     width:          batteryIndicatorRow.width
 
     property bool showIndicator: true
@@ -63,7 +65,7 @@ Item {
             function getBatteryColor() {
                 switch (battery.chargeState.rawValue) {
                 case MAVLink.MAV_BATTERY_CHARGE_STATE_OK:
-                    return qgcPal.text
+                    return qgcPal.colorGreen
                 case MAVLink.MAV_BATTERY_CHARGE_STATE_LOW:
                     return qgcPal.colorOrange
                 case MAVLink.MAV_BATTERY_CHARGE_STATE_CRITICAL:
@@ -72,16 +74,16 @@ Item {
                 case MAVLink.MAV_BATTERY_CHARGE_STATE_UNHEALTHY:
                     return qgcPal.colorRed
                 default:
-                    return qgcPal.text
+                    return qgcPal.colorGreen
                 }
             }
 
             function getBatteryPercentageText() {
                 if (!isNaN(battery.percentRemaining.rawValue)) {
                     if (battery.percentRemaining.rawValue > 98.9) {
-                        return qsTr("100%")
+                        return qsTr("100%") //@Team HC Robo
                     } else {
-                        return battery.percentRemaining.valueString + battery.percentRemaining.units
+                        return qsTr(battery.percentRemaining.valueString + battery.percentRemaining.units )
                     }
                 } else if (!isNaN(battery.voltage.rawValue)) {
                     return battery.voltage.valueString + battery.voltage.units
@@ -91,22 +93,49 @@ Item {
                 return ""
             }
 
+            function getBatteryVoltageText(){
+                if(isNaN(battery.voltage.rawValue)){
+                    return qsTr("0.0 V")
+                }else{
+                    return qsTr(battery.voltage.rawValue + " V")
+                }
+            }
+
             QGCColoredImage {
                 anchors.top:        parent.top
                 anchors.bottom:     parent.bottom
                 width:              height
+
                 sourceSize.width:   width
                 source:             "/qmlimages/Battery.svg"
                 fillMode:           Image.PreserveAspectFit
                 color:              getBatteryColor()
             }
 
-            QGCLabel {
-                text:                   getBatteryPercentageText()
-                font.pointSize:         ScreenTools.mediumFontPointSize
-                color:                  getBatteryColor()
-                anchors.verticalCenter: parent.verticalCenter
+            Column{
+                anchors.right: parent.right
+                anchors.top: parent.top
+                anchors.bottom: parent.bottom
+                QGCLabel {
+                    text:                   getBatteryPercentageText()
+                    font.pointSize:         ScreenTools.mediumFontPointSize
+                    color:                  getBatteryColor()
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.top: parent.top
+                    anchors.right: parent.right
+                }
+                QGCLabel {
+                    text:                   getBatteryVoltageText()
+                    font.pointSize:         ScreenTools.smallFontPointSize
+                    color:                  getBatteryColor()
+
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.bottom: parent.bottom
+                    anchors.right: parent.right
+                }
             }
+
+
         }
     }
 

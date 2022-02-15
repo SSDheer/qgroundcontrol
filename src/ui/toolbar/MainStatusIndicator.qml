@@ -15,6 +15,7 @@ import QGroundControl.Controls              1.0
 import QGroundControl.MultiVehicleManager   1.0
 import QGroundControl.ScreenTools           1.0
 import QGroundControl.Palette               1.0
+import QGroundControl.LoginModel            1.0
 
 RowLayout {
     id:         _root
@@ -111,12 +112,14 @@ RowLayout {
     Item {
         Layout.preferredWidth:  ScreenTools.defaultFontPixelWidth / 2
         height:                 1
+        anchors.leftMargin: 25
         visible:                flightModeMenu.visible
     }
 
     FlightModeMenu {
         id:                     flightModeMenu
         Layout.preferredHeight: _root.height
+        anchors.leftMargin: 25
         verticalAlignment:      Text.AlignVCenter
         font.pointSize:         _vehicleInAir ?  ScreenTools.largeFontPointSize : ScreenTools.defaultFontPointSize
         mouseAreaLeftMargin:    -(flightModeMenu.x - flightModeIcon.x)

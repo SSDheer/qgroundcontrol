@@ -132,6 +132,9 @@
 
 #include "QGCMapEngine.h"
 
+//HC GCS Specific
+#include "hcloginmodel.h"
+
 class FinishVideoInitialization : public QRunnable
 {
 public:
@@ -168,6 +171,10 @@ static QObject* mavlinkSingletonFactory(QQmlEngine*, QJSEngine*)
 {
     return new QGCMAVLink();
 }
+
+//static QObject* hcLoginModel(QQmlEngine* ,QJSEngine*){
+//    return new HCLoginModel();
+//}
 
 static QObject* qgroundcontrolQmlGlobalSingletonFactory(QQmlEngine*, QJSEngine*)
 {
@@ -264,9 +271,9 @@ QGCApplication::QGCApplication(int &argc, char* argv[], bool unitTesting)
 #ifdef DAILY_BUILD
         // This gives daily builds their own separate settings space. Allowing you to use daily and stable builds
         // side by side without daily screwing up your stable settings.
-        applicationName = QStringLiteral("%1 Daily").arg(QGC_APPLICATION_NAME);
+        applicationName = QStringLiteral(QGC_APPLICATION_NAME);
 #else
-        applicationName = QGC_APPLICATION_NAME;
+        applicationName = QStringLiteral(QGC_APPLICATION_NAME);
 #endif
     }
     setApplicationName(applicationName);
@@ -452,6 +459,8 @@ void QGCApplication::_initCommon()
 
     qmlRegisterType<QGCPalette>     ("QGroundControl.Palette", 1, 0, "QGCPalette");
     qmlRegisterType<QGCMapPalette>  ("QGroundControl.Palette", 1, 0, "QGCMapPalette");
+    qmlRegisterSingletonType<HCLoginModel>   ("QGroundControl.LoginModel",1,0,"HCLoginModel",HCLoginModel::getInstance);
+    qRegisterMetaType<HCLoginModel::loginStatus> ("HCLoginModel::loginStatus");
 
     qmlRegisterUncreatableType<Vehicle>                 (kQGCVehicle,                       1, 0, "Vehicle",                    kRefOnly);
     qmlRegisterUncreatableType<MissionManager>          (kQGCVehicle,                       1, 0, "MissionManager",             kRefOnly);

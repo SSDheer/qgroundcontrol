@@ -16,6 +16,7 @@ import QGroundControl.Palette       1.0
 import QGroundControl.Controls      1.0
 import QGroundControl.Controllers   1.0
 import QGroundControl.ScreenTools   1.0
+import QGroundControl.LoginModel    1.0
 
 Rectangle {
     id:     _root
@@ -89,7 +90,7 @@ Rectangle {
                     setupIndicator:     false
                     exclusiveGroup:     setupButtonGroup
                     text:               modelData.title
-
+                    visible: !HCLoginModel.isAdvancedUser  && (modelData.title !== "MAVLink Console" || modelData.title !== "MAVLink Inspector" || modelData.title !== "Log Download" || modelData.title !== "Vibration" )
                     onClicked: {
                         panelLoader.source  = modelData.url
                         panelLoader.title   = modelData.title

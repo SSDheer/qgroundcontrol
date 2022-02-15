@@ -19,6 +19,8 @@ import QGroundControl.Controls      1.0
 import QGroundControl.ScreenTools   1.0
 import QGroundControl.FlightDisplay 1.0
 import QGroundControl.FlightMap     1.0
+import QGroundControl.LoginModel    1.0
+
 
 /// @brief Native QML top level window
 /// All properties defined here are visible to all QML pages.
@@ -27,6 +29,7 @@ ApplicationWindow {
     minimumWidth:   ScreenTools.isMobile ? Screen.width  : Math.min(ScreenTools.defaultFontPixelWidth * 100, Screen.width)
     minimumHeight:  ScreenTools.isMobile ? Screen.height : Math.min(ScreenTools.defaultFontPixelWidth * 50, Screen.height)
     visible:        true
+    title: "HCGroundControl"
 
     Component.onCompleted: {
         //-- Full screen on mobile or tiny screens
@@ -89,7 +92,8 @@ ApplicationWindow {
     }
 
     /// Default color palette used throughout the UI
-    QGCPalette { id: qgcPal; colorGroupEnabled: true }
+    QGCPalette { id: qgcPal; colorGroupEnabled: true ; globalTheme: QGCPalette.Dark   } //@Team HC GCS
+
 
     //-------------------------------------------------------------------------
     //-- Actions
@@ -161,7 +165,11 @@ ApplicationWindow {
     }
 
     function showSettingsTool() {
-        showTool(qsTr("Application Settings"), "AppSettings.qml", "/res/QGCLogoWhite")
+        showTool(qsTr("Application Settings"), "AppSettings.qml", "/res/resources/HCLogoWhite.svg" /*@Team HCROBO {"/res/QGCLogoWhite"}               */)
+    }
+
+    function showAdminDialog() {
+        showPopupDialogFromComponent(testDialog)
     }
 
     //-------------------------------------------------------------------------
@@ -241,6 +249,8 @@ ApplicationWindow {
         id: popupDialogContainerComponent
         QGCPopupDialogContainer { }
     }
+
+
 
     property bool _forceClose: false
 
@@ -340,8 +350,173 @@ ApplicationWindow {
     function showToolSelectDialog() {
         if (!mainWindow.preventViewSwitch()) {
             showPopupDialogFromComponent(toolSelectDialogComponent)
+//            showPopupDialogFromComponent(testDialog)
         }
     }
+
+    Component{
+        id: testDialog
+        QGCPopupDialog{
+            id: proLoginDialog
+            title: "Advanced user login"
+            buttons:    StandardButton.Close
+            property real _margins:             ScreenTools.defaultFontPixelWidth
+            property real _textFieldHeight:    ScreenTools.defaultFontPixelHeight * 3
+
+
+            ColumnLayout{
+                width: container.width + (_margins *2)
+                height: container.height + (_margins *2)
+                Layout.margins: _margins
+
+
+                    ColumnLayout{
+                        id : container
+
+                        Rectangle{
+                            anchors.fill: hcLogo
+                            color: "white"
+                            radius: 5
+                            width: 1
+                            height: 1
+                        }
+                            Image{
+                                id: hcLogo
+                                Layout.topMargin: - 200
+                                Layout.preferredWidth: 150
+                                Layout.preferredHeight: 150
+                                Layout.alignment: Qt.AlignHCenter
+                                source: "qrc:/qmlimages/hc_logo.png"
+                                fillMode: Image.PreserveAspectFit
+
+                            }
+
+                            Rectangle{
+                                color: "transparent"
+                                height: 10
+                            }
+
+                        Text{
+                            height: _textFieldHeight
+                            Layout.fillWidth: true
+                            Layout.topMargin: _margins
+                            Layout.leftMargin: 10
+                            Layout.rightMargin: 10
+                            text: "User ID"
+                            color: "white"
+                        }
+
+                        TextField{
+                            id: userIdText
+                            Layout.fillWidth: true
+                            height:_textFieldHeight
+                            Layout.leftMargin: 10
+                            Layout.rightMargin: 10
+                            text: ""
+                            Layout.alignment: Qt.AlignJustify
+                        }
+
+                        Text{
+                            text:  "Password"
+                            color: "white"
+                            Layout.fillWidth: true
+                            Layout.topMargin: _margins
+                            Layout.leftMargin: 10
+                            Layout.rightMargin: 10
+                            height: _textFieldHeight
+                        }
+
+                        TextField{
+                            id: userPassword
+                            height: _textFieldHeight
+                            Layout.leftMargin: 10
+                            Layout.rightMargin: 10
+                            Layout.fillWidth: true
+                            echoMode: TextInput.Password
+
+                        }
+
+                        Text{
+                            id: errorText
+                            text: ""
+                            color: "red"
+                            Layout.topMargin: 15
+                            Layout.leftMargin: 10
+                            Layout.rightMargin: 10
+                            Layout.fillWidth: true
+                            height: _textFieldHeight
+                        }
+
+                        Button{
+                                id: loginBtn
+                                Layout.fillWidth: true
+                                Layout.topMargin: 10
+                                Layout.bottomMargin: 10
+                                Layout.leftMargin: 40
+                                Layout.rightMargin: 40
+                                width: parent.width
+                                height: parent.height
+
+                                contentItem: Text{
+
+                                    text:  qsTr("Login")
+                                    color: loginBtn.down ?  qgcPal.alertText : "white"
+                                    horizontalAlignment: Text.AlignHCenter
+                                    verticalAlignment:  Text.AlignVCenter
+
+                                }
+
+                                background: Rectangle{
+                                    radius: 5
+                                    color: qgcPal.brandingPurple
+                                    border.color: loginBtn.down ? "white" : qgcPal.brandingPurple
+
+                                }
+
+
+
+                                onClicked: {
+
+                                    console.log("User: " + userIdText.text + " <-|-> Password : "+ userPassword.text )
+                                    var loginState = HCLoginModel.loginUser(userIdText.text,userPassword.text)
+
+                                    console.log("Login state : " + loginState  + "Login success value : " + HCLoginModel.LOGIN_SUCCESS)
+                                    if(loginState === HCLoginModel.LOGIN_SUCCESS){
+                                        errorText.text = ""
+                                        console.log("User logged in!! -->" + userIdText.text)
+                                        proLoginDialog.hideDialog()
+                                        //return
+                                    }
+                                    if(loginState === HCLoginModel.LOGIN_FAIL_INVALID_USER){
+                                        console.log("Invalid user")
+                                        errorText.text = "Invalid User name."
+                                        userIdText.text = ""
+                                        //return
+                                    }
+                                    if(loginState === HCLoginModel.LOGIN_FAIL_INVALID_PASSWORD){
+                                        console.log("Invalid password")
+                                        errorText.text = "Invalid password supplied."
+                                        userPassword.text = ""
+                                        //return
+                                    }
+
+
+
+
+
+
+                                }
+                            }
+
+                        }
+
+                    }
+
+
+
+                }
+        }
+
 
     Component {
         id: toolSelectDialogComponent
@@ -378,6 +553,44 @@ ApplicationWindow {
                         }
                     }
 
+
+                    SubMenuButton {
+                        id:                 adminButton
+                        height:             _toolButtonHeight
+                        Layout.fillWidth:   true
+                        text:               qsTr("Admin Button")
+                        imageColor:         qgcPal.text
+                        visible: false
+                        imageResource:      "/qmlimages/Gears.svg"
+                        onClicked: {
+                            if (!mainWindow.preventViewSwitch()) {
+                                toolSelectDialog.hideDialog()
+                                mainWindow.showAdminDialog()
+                            }
+                        }
+                    }
+                    SubMenuButton {
+                        id:                 adminLogoutButton
+                        height:             _toolButtonHeight
+                        Layout.fillWidth:   true
+                        visible: false
+                        text:               qsTr("Logout Button")
+                        imageColor:         qgcPal.text
+                        imageResource:      "/qmlimages/Gears.svg"
+                        onClicked: {
+                            if (!mainWindow.preventViewSwitch()) {
+                                toolSelectDialog.hideDialog()
+                                console.log(HCLoginModel.isAdvanceUser)
+                                HCLoginModel.logoutUser()
+                                console.log(HCLoginModel.isAdvanceUser)
+                            }
+                        }
+                    }
+
+                    Connections{
+
+                    }
+
                     SubMenuButton {
                         id:                 analyzeButton
                         height:             _toolButtonHeight
@@ -399,7 +612,7 @@ ApplicationWindow {
                         height:             _toolButtonHeight
                         Layout.fillWidth:   true
                         text:               qsTr("Application Settings")
-                        imageResource:      "/res/QGCLogoFull"
+                        imageResource:      "/res/resources/HCLogoFull.svg" //@Team HCROBO {"/res/QGCLogoFull"}
                         imageColor:         "transparent"
                         visible:            !QGroundControl.corePlugin.options.combineSettingsAndSetup
                         onClicked: {
@@ -412,6 +625,7 @@ ApplicationWindow {
 
                     ColumnLayout {
                         width:      innerLayout.width
+                        visible: false
                         spacing:    0
 
                         QGCLabel {
@@ -474,6 +688,69 @@ ApplicationWindow {
         id:             planView
         anchors.fill:   parent
         visible:        false
+    }
+    property date lastPressedTime: new Date()
+    property int pressCounter: 0
+
+    //@ PROMode dialog launcher
+    Rectangle{
+        id: _proMode
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        color: "transparent"
+        visible: !HCLoginModel.isAdvanceUser
+        width: 50
+        height: 50
+
+        MouseArea{
+            anchors.fill: parent
+            onClicked: {
+                var lt = lastPressedTime.toTimeString()
+                var nt = new Date().toTimeString()
+                console.log("Last time " + lt)
+                console.log("New time " + nt)
+
+                var diff = ( new Date().getTime() - lastPressedTime.getTime() )
+                console.log("Difference in time: " + diff)
+
+                if(diff < 800 ){
+                    console.log("Time diff < 1S : ")
+                    pressCounter = pressCounter + 1
+                    console.log("Counter : " + pressCounter)
+                    if(pressCounter > 5){
+                        pressCounter = 0
+                        showAdminDialog()
+                    }
+                }else{
+                    console.log("Time diff > 1S : ")
+                    pressCounter = 0
+                }
+                lastPressedTime = new Date()
+
+
+            }
+
+        }
+    }
+
+    //@ PROMode dismisser
+    Rectangle{
+        id: _basicMode
+        anchors.left: parent.left
+        anchors.bottom: parent.bottom
+        color: "transparent"
+        visible: HCLoginModel.isAdvanceUser
+        width: 50
+        height: 50
+
+        MouseArea{
+            anchors.fill: parent
+
+            onClicked: {
+                HCLoginModel.logoutUser()
+            }
+
+        }
     }
 
     Drawer {
@@ -576,10 +853,10 @@ ApplicationWindow {
     function showCriticalVehicleMessage(message) {
         indicatorPopup.close()
         if (criticalVehicleMessagePopup.visible || QGroundControl.videoManager.fullScreen) {
-            _vehicleMessageQueue.push(message)
+            //_vehicleMessageQueue.push(message)
         } else {
             _vehicleMessage = message
-            criticalVehicleMessagePopup.open()
+           // criticalVehicleMessagePopup.open()
         }
     }
 
@@ -596,9 +873,9 @@ ApplicationWindow {
         background: Rectangle {
             anchors.fill:   parent
             color:          qgcPal.alertBackground
-            radius:         ScreenTools.defaultFontPixelHeight * 0.5
+            radius:         ScreenTools.defaultFontPixelHeight * 0.75
             border.color:   qgcPal.alertBorder
-            border.width:   2
+            border.width:   1
         }
 
         onOpened: {

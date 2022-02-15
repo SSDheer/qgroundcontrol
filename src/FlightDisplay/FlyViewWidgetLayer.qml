@@ -258,6 +258,7 @@ Item {
 
     VehicleWarnings {
         anchors.centerIn:   parent
+        Layout.alignment: Qt.AlignHCenter
         z:                  QGroundControl.zOrderTopMost
     }
 
@@ -265,7 +266,7 @@ Item {
         id:                 mapScale
         anchors.margins:    _toolsMargin
         anchors.left:       toolStrip.right
-        anchors.top:        parent.top
+        anchors.bottom:        parent.bottom
         mapControl:         _mapControl
         buttonsOnLeft:      false
         visible:            !ScreenTools.isTinyScreen && QGroundControl.corePlugin.options.flyView.showMapScale && mapControl.pipState.state === mapControl.pipState.fullState

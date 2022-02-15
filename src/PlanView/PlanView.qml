@@ -26,6 +26,7 @@ import QGroundControl.Controllers       1.0
 import QGroundControl.ShapeFileHelper   1.0
 import QGroundControl.Airspace          1.0
 import QGroundControl.Airmap            1.0
+import QGroundControl.LoginModel        1.0
 
 Item {
     id: _root
@@ -60,6 +61,7 @@ Item {
     readonly property int       _layerGeoFence:             2
     readonly property int       _layerRallyPoints:          3
     readonly property string    _armedVehicleUploadPrompt:  qsTr("Vehicle is currently armed. Do you want to upload the mission to the vehicle?")
+
 
     function mapCenter() {
         var coordinate = editorMap.center
@@ -710,7 +712,17 @@ Item {
                         enabled:            true
                         visible:            true
                         dropPanelComponent: centerMapDropPanel
+                    },
+                    ToolStripAction{
+                        text: qsTr("Reboot")
+                        iconSource:       "/qmlimages/restart.svg"
+                        enabled: _missionController.isInsertTakeoffValid
+                        visible: false
+                        onTriggered: {
+                            globals.activeVehicle.rebootVehicle()
+                        }
                     }
+
                 ]
             }
 

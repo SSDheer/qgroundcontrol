@@ -184,8 +184,10 @@ public:
 
     bool showTouchAreas() const { return _showTouchAreas; }
     bool showAdvancedUI() const { return _showAdvancedUI; }
+    bool showConsumerUI() const { return _showConsumerUI; }
     void setShowTouchAreas(bool show);
     void setShowAdvancedUI(bool show);
+    void setShowConsumerUI(bool show);
 
     // Override from QGCTool
     void                            setToolbox              (QGCToolbox* toolbox);
@@ -207,6 +209,7 @@ signals:
 protected:
     bool                _showTouchAreas;
     bool                _showAdvancedUI;
+    bool                _showConsumerUI;
     Vehicle*            _activeVehicle  = nullptr;
     QGCCameraManager*   _cameraManager  = nullptr;
     QGCCameraControl*   _currentCamera  = nullptr;

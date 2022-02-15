@@ -17,6 +17,7 @@ import QGroundControl.Palette               1.0
 import QGroundControl.Controls              1.0
 import QGroundControl.ScreenTools           1.0
 import QGroundControl.MultiVehicleManager   1.0
+import QGroundControl.LoginModel            1.0
 
 Rectangle {
     id:     setupView
@@ -239,7 +240,7 @@ Rectangle {
                 imageResource:      "/qmlimages/FirmwareUpgradeIcon.png"
                 setupIndicator:     false
                 exclusiveGroup:     setupButtonGroup
-                visible:            !ScreenTools.isMobile && _corePlugin.options.showFirmwareUpgrade
+                visible:            !ScreenTools.isMobile && _corePlugin.options.showFirmwareUpgrade && HCLoginModel.isAdvanceUser
                 text:               qsTr("Firmware")
                 Layout.fillWidth:   true
 
@@ -278,7 +279,8 @@ Rectangle {
                     setupComplete:      modelData.setupComplete
                     exclusiveGroup:     setupButtonGroup
                     text:               modelData.name
-                    visible:            modelData.setupSource.toString() !== ""
+                    visible:            modelData.setupSource.toString() !== "" && (HCLoginModel.isAdvanceUser ||(modelData.name === "Flight Modes"  || modelData.name === "Sensors" || modelData.name === "Radio" ||
+                                                                                    modelData.name === "Power" || modelData.name === "Safety"))
                     Layout.fillWidth:   true
                     onClicked:          showVehicleComponentPanel(modelData)
                 }
@@ -287,9 +289,10 @@ Rectangle {
             SubMenuButton {
                 setupIndicator:     false
                 exclusiveGroup:     setupButtonGroup
-                visible:            QGroundControl.multiVehicleManager.parameterReadyVehicleAvailable &&
-                                    !QGroundControl.multiVehicleManager.activeVehicle.usingHighLatencyLink &&
-                                    _corePlugin.showAdvancedUI
+//                visible:            QGroundControl.multiVehicleManager.parameterReadyVehicleAvailable &&
+//                                    !QGroundControl.multiVehicleManager.activeVehicle.usingHighLatencyLink &&
+//                                    _corePlugin.showAdvancedUI
+                visible : false
                 text:               qsTr("Parameters")
                 Layout.fillWidth:   true
                 onClicked:          showPanel(this, "SetupParameterEditor.qml")

@@ -350,7 +350,7 @@ SetupPage {
                     Image {
                         id:                 gcsIcon
                         anchors.centerIn:   parent
-                        source:             "/res/QGCLogoArrow"
+                        source:             "/res/HCLogoArrow"  //@Team HCROBO {"/res/QGCLogoArrow"}
                         mipmap:             true
                         antialiasing:       true
                         fillMode:           Image.PreserveAspectFit

@@ -18,6 +18,7 @@ import QGroundControl.Controls              1.0
 import QGroundControl.ScreenTools           1.0
 import QGroundControl.MultiVehicleManager   1.0
 import QGroundControl.Palette               1.0
+import QGroundControl.LoginModel            1.0
 
 Rectangle {
     id:             _summaryRoot
@@ -103,7 +104,7 @@ Rectangle {
                         width:      _summaryBoxWidth
                         height:     ScreenTools.defaultFontPixelHeight * 13
                         color:      qgcPal.windowShade
-                        visible:    modelData.summaryQmlSource.toString() !== ""
+                        visible:    modelData.summaryQmlSource.toString() !== "" && (HCLoginModel.isAdvanceUser || (modelData.name === "Radio" || modelData.name === "Flight Modes") || modelData.name === "Sensors" || modelData.name === "Power" || modelData.name === "Safety")
                         border.width: 1
                         border.color: qgcPal.text
                         Component.onCompleted: {
@@ -118,6 +119,7 @@ Rectangle {
                             width:  parent.width
                             height: titleHeight
                             text:   capitalizeWords(modelData.name)
+
 
                             // Setup indicator
                             Rectangle {
@@ -135,6 +137,7 @@ Rectangle {
                                 //console.log(modelData.setupSource)
                                 if (modelData.setupSource !== "") {
                                     setupView.showVehicleComponentPanel(modelData)
+                                    console.log("Model data name :" + modelData.name)
                                 }
                             }
                         }

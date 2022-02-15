@@ -47,9 +47,11 @@ QGCLabel {
             flightModesMenuItems.length = 0
             // Add new items
             for (i = 0; i < currentVehicle.flightModes.length; i++) {
-                var menuItem = flightModeMenuItemComponent.createObject(null, { "text": currentVehicle.flightModes[i] })
-                flightModesMenuItems.push(menuItem)
-                flightModesMenu.insertItem(i, menuItem)
+                if(currentVehicle.flightModes[i] === "Position Hold" || currentVehicle.flightModes[i] === "Altitude Hold" || currentVehicle.flightModes[i] === "Auto" || currentVehicle.flightModes[i] === "Land"){
+                    var menuItem = flightModeMenuItemComponent.createObject(null, { "text": currentVehicle.flightModes[i] })
+                    flightModesMenuItems.push(menuItem)
+                    flightModesMenu.insertItem(i, menuItem)
+                }
             }
         }
     }
