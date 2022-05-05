@@ -150,8 +150,10 @@ Item {
 
     QGCPipOverlay {
         id:                     _pipOverlay
-        anchors.right:           parent.right
-        anchors.bottom:         parent.bottom
+//        anchors.right:           parent.right
+            x:255
+            anchors.bottom:         parent.bottom
+//        anchors.fill:            parent
         anchors.margins:        _toolsMargin
         item1IsFullSettingsKey: "MainFlyWindowIsMap"
         item1:                  mapControl
@@ -160,6 +162,31 @@ Item {
         pipZOrder:              _pipItemZorder
         show:                   !QGroundControl.videoManager.fullScreen &&
                                     (videoControl.pipState.state === videoControl.pipState.pipState || mapControl.pipState.state === mapControl.pipState.pipState)
-
     }
+
+//    Rectangle{
+//        width: 300
+//        height: 200
+//        x:255
+//        border.color: "#0c213a"
+//        border.width: 5
+//        anchors.bottom:         parent.bottom
+
+//        QGCPipOverlay {
+//            id:                     _pipOverlay
+//    //        anchors.right:           parent.right
+////            x:255
+////            anchors.bottom:         parent.bottom
+//            anchors.fill:            parent
+//            anchors.margins:        _toolsMargin
+//            item1IsFullSettingsKey: "MainFlyWindowIsMap"
+//            item1:                  mapControl
+//            item2:                  QGroundControl.videoManager.hasVideo ? videoControl : null
+//            fullZOrder:             _fullItemZorder
+//            pipZOrder:              _pipItemZorder
+//            show:                   !QGroundControl.videoManager.fullScreen &&
+//                                        (videoControl.pipState.state === videoControl.pipState.pipState || mapControl.pipState.state === mapControl.pipState.pipState)
+//        }
+//    }
+
 }

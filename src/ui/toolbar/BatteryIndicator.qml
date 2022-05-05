@@ -109,7 +109,7 @@ Item {
                 sourceSize.width:   width
                 source:             "/qmlimages/Battery.svg"
                 fillMode:           Image.PreserveAspectFit
-                color:              getBatteryColor()
+                color:             /* getBatteryColor()*/"#0c213a"
             }
 
             Column{
@@ -124,15 +124,15 @@ Item {
                     anchors.top: parent.top
                     anchors.right: parent.right
                 }
-                QGCLabel {
-                    text:                   getBatteryVoltageText()
-                    font.pointSize:         ScreenTools.smallFontPointSize
-                    color:                  getBatteryColor()
+//                QGCLabel {
+//                    text:                   getBatteryVoltageText()
+//                    font.pointSize:         ScreenTools.smallFontPointSize
+//                    color:                  getBatteryColor()
 
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    anchors.bottom: parent.bottom
-                    anchors.right: parent.right
-                }
+//                    anchors.horizontalCenter: parent.horizontalCenter
+//                    anchors.bottom: parent.bottom
+//                    anchors.right: parent.right
+//                }
             }
 
 

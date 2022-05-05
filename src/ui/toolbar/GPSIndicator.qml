@@ -80,11 +80,11 @@ Item {
         width:              height
         anchors.top:        parent.top
         anchors.bottom:     parent.bottom
-        source:             "/qmlimages/Gps.svg"
+        source:             "qrc:/qmlimages/satellite_1.png"
         fillMode:           Image.PreserveAspectFit
         sourceSize.height:  height
         opacity:            (_activeVehicle && _activeVehicle.gps.count.value >= 0) ? 1 : 0.5
-        color:              qgcPal.buttonText
+        color:              /*qgcPal.buttonText*/ "#0c213a"
     }
 
     Column {

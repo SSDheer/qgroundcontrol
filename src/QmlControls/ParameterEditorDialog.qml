@@ -56,6 +56,8 @@ QGCViewDialog {
             var errorString = fact.validate(valueField.text, forceSave.checked)
             if (errorString === "") {
                 fact.value = valueField.text
+//                fact.value = "URL CHECK!"
+//                fact.value = "rtsp://admin:admin1@192.168.1.233:8090/cam/realmonitor?channel=1&subtype=0 "
                 fact.valueChanged(fact.value)
                 valueChanged()
                 hideDialog()
@@ -120,6 +122,7 @@ QGCViewDialog {
                 QGCTextField {
                     id:                 valueField
                     text:               validate ? validateValue : fact.valueString
+//                    text: qsTr("rtsp://admin:admin1@192.168.1.233:8090/cam/realmonitor?channel=1&subtype=0 ")
                     visible:            fact.enumStrings.length === 0 || validate || manualEntry.checked
                     unitsLabel:         fact.units
                     showUnits:          fact.units != ""

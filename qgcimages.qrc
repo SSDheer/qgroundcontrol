@@ -198,5 +198,12 @@
         <file alias="ZoomPlus.svg">src/FlightMap/Images/ZoomPlus.svg</file>
         <file alias="restart.svg">resources/restart icon.svg</file>
         <file alias="hc_logo.png">resources/hc_robotics_logo.png</file>
+        <file alias="home_1.png">src/hc_icons/home_1.png</file>
+        <file alias="land_1.png">src/hc_icons/land_1.png</file>
+        <file alias="returntohome.png">src/hc_icons/returntohome.png</file>
+        <file alias="takeoff_2.png">src/hc_icons/takeoff_2.png</file>
+        <file alias="battery_1.png">src/hc_icons/battery_1.png</file>
+        <file alias="satellite_1.png">src/hc_icons/satellite_1.png</file>
+        <file alias="signal_1.png">src/hc_icons/signal_1.png</file>
     </qresource>
 </RCC>

@@ -722,6 +722,10 @@ Item {
                             globals.activeVehicle.rebootVehicle()
                         }
                     }
+//                    ToolStripAction{
+//                        text: qsTr("checkk!")
+//                        visible: true
+//                       }
 
                 ]
             }

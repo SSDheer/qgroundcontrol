@@ -226,6 +226,8 @@ Item {
 
     Rectangle {
         id:                     showPip
+//        border.color: "#0c213a"
+//        border.width: 5
         anchors.left :          parent.left
         anchors.bottom:         parent.bottom
         height:                 ScreenTools.defaultFontPixelHeight * 2

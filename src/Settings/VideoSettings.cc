@@ -168,6 +168,7 @@ DECLARE_SETTINGSFACT_NO_FUNC(VideoSettings, rtspUrl)
         connect(_rtspUrlFact, &Fact::valueChanged, this, &VideoSettings::_configChanged);
     }
     return _rtspUrlFact;
+//    return "rtsp://192.168.1.82/stream-1.sdp";
 }
 
 DECLARE_SETTINGSFACT_NO_FUNC(VideoSettings, tcpUrl)
@@ -203,6 +204,7 @@ bool VideoSettings::streamConfigured(void)
     if(vSource == videoSourceRTSP) {
         qCDebug(VideoManagerLog) << "Testing configuration for RTSP Stream:" << rtspUrl()->rawValue().toString();
         return !rtspUrl()->rawValue().toString().isEmpty();
+//        rtspUrl()->rawValue().toString("rtsp://192.168.168.237/stream-1.sdp");
     }
     //-- If TCP, check for URL
     if(vSource == videoSourceTCP) {

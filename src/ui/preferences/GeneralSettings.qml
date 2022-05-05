@@ -266,7 +266,8 @@ Rectangle {
                                 }
                                 FactTextField {
                                     Layout.preferredWidth:  _comboFieldWidth
-                                    fact:                   _videoSettings.rtspUrl
+                                    text: qsTr("rtsp://admin:admin1@192.168.1.233:8090/cam/realmonitor?channel=1&subtype=0 ")
+                                    fact:  _videoSettings.rtspUrl
                                     visible:                rtspUrlLabel.visible
                                 }
 

@@ -109,8 +109,9 @@ Item {
     FlyViewInstrumentPanel {
         id:                         instrumentPanel
         anchors.margins:            _toolsMargin
-        anchors.top:                multiVehiclePanelSelector.visible ? multiVehiclePanelSelector.bottom : parent.top
+//        anchors.top:                multiVehiclePanelSelector.visible ? multiVehiclePanelSelector.bottom : parent.top
         anchors.right:              parent.right
+        anchors.bottom:             multiVehiclePanelSelector.visible ? multiVehiclePanelSelector.bottom : parent.bottom
         width:                      _rightPanelWidth
         spacing:                    _toolsMargin
         visible:                    QGroundControl.corePlugin.options.flyView.showInstrumentPanel && multiVehiclePanelSelector.showSingleVehiclePanel
@@ -162,7 +163,7 @@ Item {
                     target: telemetryPanel
                     anchors.top: undefined
                     anchors.bottom: parent.bottom
-                    anchors.right: undefined
+                    anchors.left: parent.left
                     anchors.verticalCenter: undefined
                 }
 
@@ -265,7 +266,7 @@ Item {
     MapScale {
         id:                 mapScale
         anchors.margins:    _toolsMargin
-        anchors.left:       toolStrip.right
+        anchors.left:       toolStrip.left
         anchors.bottom:        parent.bottom
         mapControl:         _mapControl
         buttonsOnLeft:      false

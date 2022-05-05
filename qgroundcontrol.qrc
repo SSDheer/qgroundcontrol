@@ -1,6 +1,7 @@
 <RCC>
     <qresource prefix="/unittest">
         <file alias="FactSystemTest.qml">src/FactSystem/FactSystemTest.qml</file>
+        <file>src/FlightDisplay/HCSideBar.qml</file>
     </qresource>
     <qresource prefix="/toolbar">
         <file alias="ArmedIndicator.qml">src/ui/toolbar/ArmedIndicator.qml</file>
@@ -283,6 +284,11 @@
         <file alias="VTOLLandingPatternEditor.qml">src/PlanView/VTOLLandingPatternEditor.qml</file>
         <file alias="HCProModeLoginView">HCProModeLoginView.qml</file>
         <file alias="LoginModel">HCProLoginModel.qml</file>
+        <file alias="QGroundControl/FlightDisplay/HCControls.qml">src/FlightDisplay/HCControls.qml</file>
+        <file alias="QGroundControl/FlightDisplay//HCSideBar.qml">src/FlightDisplay/HCSideBar.qml</file>
+        <file alias="HCMainRootWindow.qml">src/ui/HCMainRootWindow.qml</file>
+        <file alias="QGroundControl/FlightDisplay//HCView.qml">src/FlightDisplay/HCView.qml</file>
+        <file alias="QGroundControl/Controls/HCToolBar.qml">src/ui/toolbar/HCToolBar.qml</file>
     </qresource>
     <qresource prefix="/FirstRunPromptDialogs">
         <file alias="UnitsFirstRunPrompt.qml">src/FirstRunPromptDialogs/UnitsFirstRunPrompt.qml</file>
@@ -350,4 +356,5 @@
         <file alias="Parameter.MetaData.json.xz">src/comm/MockLink.Parameter.MetaData.json.xz</file>
         <file alias="Parameter.MetaData.json">src/comm/MockLink.Parameter.MetaData.json</file>
     </qresource>
+    <qresource prefix="/"/>
 </RCC>

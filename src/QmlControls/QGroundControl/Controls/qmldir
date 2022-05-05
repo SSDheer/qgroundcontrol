@@ -34,6 +34,7 @@ KMLOrSHPFileDialog                      1.0 KMLOrSHPFileDialog.qml
 LogReplayStatusBar                      1.0 LogReplayStatusBar.qml
 MainStatusIndicator                     1.0 MainStatusIndicator.qml
 MainToolBar                             1.0 MainToolBar.qml
+HCToolBar                               1.0 HCToolBar.qml
 MainWindowSavedState                    1.0 MainWindowSavedState.qml
 MAVLinkMessageButton                    1.0 MAVLinkMessageButton.qml
 MissionCommandDialog                    1.0 MissionCommandDialog.qml

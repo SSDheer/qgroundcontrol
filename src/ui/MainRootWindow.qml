@@ -689,6 +689,18 @@ ApplicationWindow {
         anchors.fill:   parent
         visible:        false
     }
+//    HCControls{
+//        id:     hccontrolsView
+//        anchors.fill:  parent
+//        anchors.right: parent.right
+//        anchors.leftMargin: 10
+
+//        }
+    HCSideBar{
+        id:   hcsideBar
+
+
+    }
     property date lastPressedTime: new Date()
     property int pressCounter: 0
 
