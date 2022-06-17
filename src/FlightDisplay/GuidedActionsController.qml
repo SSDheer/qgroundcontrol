@@ -306,6 +306,7 @@ Item {
     }
 
     function closeAll() {
+        console.log(confirmDialog)
         confirmDialog.visible =     false
         actionList.visible =        false
         altitudeSlider.visible =    false
@@ -313,6 +314,7 @@ Item {
 
     // Called when an action is about to be executed in order to confirm
     function confirmAction(actionCode, actionData, mapIndicator) {
+        console.log("actioncode",actionCode);
         var showImmediate = true
         closeAll()
         confirmDialog.action = actionCode
@@ -324,6 +326,9 @@ Item {
         switch (actionCode) {
         case actionArm:
             if (_vehicleFlying || !_guidedActionsEnabled) {
+                console.log("Unable to arm due to ");
+                console.log("Vehicle flying : ", _vehicleFlying);
+                console.log("Guided action :" , _guidedActionsEnabled);
                 return
             }
             confirmDialog.title = armTitle
@@ -339,6 +344,7 @@ Item {
             if (_vehicleFlying) {
                 return
             }
+             console.log("Confirm dialog title:",armTitle);
             confirmDialog.title = disarmTitle
             confirmDialog.message = disarmMessage
             confirmDialog.hideTrigger = Qt.binding(function() { return !showDisarm })
@@ -456,6 +462,7 @@ Item {
             console.warn("Unknown actionCode", actionCode)
             return
         }
+        console.log("Show immediate",showImmediate);
         confirmDialog.show(showImmediate)
     }
 
@@ -471,6 +478,7 @@ Item {
             _activeVehicle.guidedModeLand()
             break
         case actionTakeoff:
+            console.log("takeoff called")
             _activeVehicle.guidedModeTakeoff(actionAltitudeChange)
             break
         case actionResumeMission:

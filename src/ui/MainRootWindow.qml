@@ -20,6 +20,9 @@ import QGroundControl.ScreenTools   1.0
 import QGroundControl.FlightDisplay 1.0
 import QGroundControl.FlightMap     1.0
 import QGroundControl.LoginModel    1.0
+import QtGraphicalEffects 1.0
+import QGroundControl.MultiVehicleManager   1.0
+import QGroundControl.Controllers           1.0
 
 
 /// @brief Native QML top level window
@@ -84,8 +87,8 @@ ApplicationWindow {
         readonly property var       activeVehicle:                  QGroundControl.multiVehicleManager.activeVehicle
         readonly property real      defaultTextHeight:              ScreenTools.defaultFontPixelHeight
         readonly property real      defaultTextWidth:               ScreenTools.defaultFontPixelWidth
-        readonly property var       planMasterControllerFlyView:    flightView.planController
-        readonly property var       guidedControllerFlyView:        flightView.guidedController
+        readonly property var       planMasterControllerFlyView:    viewbar.planController
+        readonly property var       guidedControllerFlyView:        viewbar.guidedController
 
         property var                planMasterControllerPlanView:   null
         property var                currentPlanMissionItem:         planMasterControllerPlanView ? planMasterControllerPlanView.missionController.currentPlanViewItem : null
@@ -130,17 +133,18 @@ ApplicationWindow {
     function viewSwitch(currentToolbar) {
         toolDrawer.visible      = false
         toolDrawer.toolSource   = ""
-        flightView.visible      = false
+        viewbar.visible      = false
         planView.visible        = false
         toolbar.currentToolbar  = currentToolbar
     }
 
     function showFlyView() {
-        if (!flightView.visible) {
+        console.log("Show flyview called");
+        if (!viewbar.visible) {
             mainWindow.showPreFlightChecklistIfNeeded()
         }
         viewSwitch(toolbar.flyViewToolbar)
-        flightView.visible = true
+        viewbar.visible = true
     }
 
     function showPlanView() {
@@ -149,7 +153,7 @@ ApplicationWindow {
     }
 
     function showTool(toolTitle, toolSource, toolIcon) {
-        toolDrawer.backIcon     = flightView.visible ? "/qmlimages/PaperPlane.svg" : "/qmlimages/Plan.svg"
+        toolDrawer.backIcon     = viewbar.visible ? "/qmlimages/PaperPlane.svg" : "/qmlimages/Plan.svg"
         toolDrawer.toolTitle    = toolTitle
         toolDrawer.toolSource   = toolSource
         toolDrawer.toolIcon     = toolIcon
@@ -337,10 +341,11 @@ ApplicationWindow {
 
     //-------------------------------------------------------------------------
     /// Toolbar
-    header: MainToolBar {
+    header: HCToolBar {
         id:         toolbar
-        height:     ScreenTools.toolbarHeight
-        visible:    !QGroundControl.videoManager.fullScreen
+        height:     ScreenTools.toolbarHeight*0.75
+
+//        visible:    !QGroundControl.videoManager.fullScreen
     }
 
     footer: LogReplayStatusBar {
@@ -679,10 +684,16 @@ ApplicationWindow {
         }
     }
 
-    FlyView {
-        id:             flightView
-        anchors.fill:   parent
-    }
+//    FlyView {
+//        id:             viewbar
+//        anchors.fill:   parent
+//    }
+
+
+    HCView{
+        id: viewbar
+        anchors.fill:   parent}
+
 
     PlanView {
         id:             planView
@@ -696,11 +707,60 @@ ApplicationWindow {
 //        anchors.leftMargin: 10
 
 //        }
+//    HCView{
+//        id: viewbar
+//        anchors.fill:   parent}
+
     HCSideBar{
         id:   hcsideBar
-
-
     }
+
+
+    Rectangle{
+        id:messagealert
+        x: 255
+        y: 10
+        color:"#e3ecff"
+        width:700
+        height:30
+
+        Text {
+            id: msg
+            text: qsTr("Alert Zone")
+            color:"#176afd"
+            x:8
+            y:8
+
+        }
+        Loader{
+        source: "qrc:/toolbar/MessageIndicator.qml"
+        }
+    }
+    Image{
+        id: downloads_logo
+        x:980
+        y:10
+        source: "qrc:/InstrumentValueIcons/folder-outline.svg"
+ //        color: "#ffb822"
+    }
+
+    ColorOverlay {
+            anchors.fill: downloads_logo
+            source: downloads_logo
+            color: "#ffb822"
+        }
+
+        Text {
+            id: download
+            anchors.top: downloads_logo.bottom
+            anchors.topMargin: 1
+            text: qsTr("Downloads")
+            x:970
+            y:18
+            color: "#ffb822"
+        }
+
+
     property date lastPressedTime: new Date()
     property int pressCounter: 0
 

@@ -205,5 +205,10 @@
         <file alias="battery_1.png">src/hc_icons/battery_1.png</file>
         <file alias="satellite_1.png">src/hc_icons/satellite_1.png</file>
         <file alias="signal_1.png">src/hc_icons/signal_1.png</file>
+        <file alias="location_1.png">src/hc_icons/location_1.png</file>
+        <file alias="record_1.png">src/hc_icons/record_1.png</file>
+        <file alias="snap_1.png">src/hc_icons/snap_1.png</file>
+        <file alias="takeoff_1.png">src/hc_icons/takeoff_1.png</file>
+        <file alias="time_1.png">src/hc_icons/time_1.png</file>
     </qresource>
 </RCC>

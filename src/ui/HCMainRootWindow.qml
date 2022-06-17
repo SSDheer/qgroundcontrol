@@ -87,4 +87,50 @@ ApplicationWindow {
            y:18
            color: "#ffb822"
        }
-  }
+       //-- Indicator Popups
+
+           function showIndicatorPopup(item, dropItem) {
+               indicatorPopup.currentIndicator = dropItem
+               indicatorPopup.currentItem = item
+               indicatorPopup.open()
+           }
+
+           function hideIndicatorPopup() {
+               indicatorPopup.close()
+               indicatorPopup.currentItem = null
+               indicatorPopup.currentIndicator = null
+           }
+
+           Popup {
+               id:             indicatorPopup
+               padding:        ScreenTools.defaultFontPixelWidth * 0.75
+               modal:          true
+               focus:          true
+               closePolicy:    Popup.CloseOnEscape | Popup.CloseOnPressOutside
+               property var    currentItem:        null
+               property var    currentIndicator:   null
+               background: Rectangle {
+                   width:  loader.width
+                   height: loader.height
+                   color:  Qt.rgba(0,0,0,0)
+               }
+               Loader {
+                   id:             loader
+                   onLoaded: {
+                       var centerX = mainWindow.contentItem.mapFromItem(indicatorPopup.currentItem, 0, 0).x - (loader.width * 0.5)
+                       if((centerX + indicatorPopup.width) > (mainWindow.width - ScreenTools.defaultFontPixelWidth)) {
+                           centerX = mainWindow.width - indicatorPopup.width - ScreenTools.defaultFontPixelWidth
+                       }
+                       indicatorPopup.x = centerX
+                   }
+               }
+               onOpened: {
+                   loader.sourceComponent = indicatorPopup.currentIndicator
+               }
+               onClosed: {
+                   loader.sourceComponent = null
+                   indicatorPopup.currentIndicator = null
+               }
+           }
+       }
+

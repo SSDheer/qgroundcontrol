@@ -11,6 +11,7 @@
 #include <QDateTime>
 #include <QLocale>
 #include <QQuaternion>
+#include <QtDebug>
 
 #include <Eigen/Eigen>
 
@@ -658,9 +659,10 @@ void Vehicle::_mavlinkMessageReceived(LinkInterface* link, mavlink_message_t mes
     for (FactGroup* factGroup : factGroups()) {
         factGroup->handleMessage(this, message);
     }
-
+//     qDebug()<<"Testing..................................................";
     switch (message.msgid) {
     case MAVLINK_MSG_ID_HOME_POSITION:
+        qDebug() << "Home position changed!";
         _handleHomePosition(message);
         break;
     case MAVLINK_MSG_ID_HEARTBEAT:
@@ -1465,6 +1467,7 @@ void Vehicle::_setHomePosition(QGeoCoordinate& homeCoord)
 {
     if (homeCoord != _homePosition) {
         _homePosition = homeCoord;
+        qDebug()<<"handle home position fuction called";
         emit homePositionChanged(_homePosition);
     }
 }
@@ -1478,6 +1481,8 @@ void Vehicle::_handleHomePosition(mavlink_message_t& message)
     QGeoCoordinate newHomePosition (homePos.latitude / 10000000.0,
                                     homePos.longitude / 10000000.0,
                                     homePos.altitude / 1000.0);
+    qDebug()<<"handle home position fuction called";
+
     _setHomePosition(newHomePosition);
 }
 
@@ -2973,6 +2978,10 @@ void Vehicle::_handleCommandAck(mavlink_message_t& message)
     QString rawCommandName  =_toolbox->missionCommandTree()->rawName(static_cast<MAV_CMD>(ack.command));
     qCDebug(VehicleLog) << QStringLiteral("_handleCommandAck command(%1) result(%2)").arg(rawCommandName).arg(QGCMAVLink::mavResultToString(static_cast<MAV_RESULT>(ack.result)));
 
+    if (ack.result == MAV_RESULT_ACCEPTED && ack.command == 179) {
+        qDebug() << "Set home location success!";
+    }
+
     if (ack.command == MAV_CMD_DO_SET_ROI_LOCATION) {
         if (ack.result == MAV_RESULT_ACCEPTED) {
             _isROIEnabled = true;
@@ -3010,18 +3019,23 @@ void Vehicle::_handleCommandAck(mavlink_message_t& message)
                     switch (ack.result) {
                     case MAV_RESULT_TEMPORARILY_REJECTED:
                         qgcApp()->showAppMessage(tr("%1 command temporarily rejected").arg(rawCommandName));
+                        qDebug() << "Command temp failed";
                         break;
                     case MAV_RESULT_DENIED:
                         qgcApp()->showAppMessage(tr("%1 command denied").arg(rawCommandName));
+                        qDebug() << "Command denied";
                         break;
                     case MAV_RESULT_UNSUPPORTED:
                         qgcApp()->showAppMessage(tr("%1 command not supported").arg(rawCommandName));
+                        qDebug() << "Command unsupported";
                         break;
                     case MAV_RESULT_FAILED:
                         qgcApp()->showAppMessage(tr("%1 command failed").arg(rawCommandName));
+                        qDebug() << "Command Failed";
                         break;
                     default:
                         // Do nothing
+                        qDebug() << "Command unknown response";
                         break;
                     }
                 }

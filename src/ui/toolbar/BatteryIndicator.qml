@@ -74,7 +74,7 @@ Item {
                 case MAVLink.MAV_BATTERY_CHARGE_STATE_UNHEALTHY:
                     return qgcPal.colorRed
                 default:
-                    return qgcPal.colorGreen
+                    return qgcPal.colorBlack
                 }
             }
 

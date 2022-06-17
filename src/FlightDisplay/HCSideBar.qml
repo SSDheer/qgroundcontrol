@@ -1,12 +1,43 @@
 import QtQuick                  2.4
 import QtPositioning            5.2
 import QtQuick.Layouts          1.2
-import QtQuick.Controls         1.4
+import QtQuick.Controls         2.1
 import QtQuick.Dialogs          1.2
 import QtGraphicalEffects       1.0
 import QGroundControl.ScreenTools 1.0
+import QGroundControl               1.0
+import QGroundControl.Controls      1.0
+import QGroundControl.Vehicle 1.0
+import QGroundControl.FactSystem 1.0
+import QGroundControl.FactControls 1.0
 
-Item {
+
+Item { id: _root
+
+    property int    action
+    property var    actionData
+    property var    mapIndicator
+    property bool   hideTrigger:        false
+    property alias  optionText:         optionCheckBox.text
+    property alias  optionChecked:      optionCheckBox.checked
+    property var    guidedController:  _guidedController
+    property var    _guidedController:      globals.guidedControllerFlyView
+
+    property var    _activeVehicle:     QGroundControl.multiVehicleManager.activeVehicle
+    property bool   _communicationLost: _activeVehicle ? _activeVehicle.vehicleLinkManager.communicationLost : false
+    property bool _armed: _activeVehicle ? _activeVehicle.armed : false
+    property bool forceArm: false
+    property int defaultComponentId: _activeVehicle? _activeVehicle.defaultComponentId() : 1
+
+    property bool _emergencyAction: action === guidedController.actionEmergencyStop
+
+    Component.onCompleted: guidedController.confirmDialog = this
+    QGCCheckBox {
+        id:                 optionCheckBox
+        Layout.alignment:   Qt.AlignHCenter
+        text:               ""
+        visible:            text !== ""
+    }
     Column{
         Rectangle{ id: controls
                 width:250; height: 200
@@ -26,8 +57,37 @@ Item {
                     color: "#acb7ce"
                     radius:         4
                     MouseArea {
+                        onPressAndHold: forceArm = true
                         anchors.fill:   parent
-                        onClicked: {
+                        onClicked:
+                            {
+                            if(_activeVehicle){
+                            if (_armed) {
+                                console.log("Vehicle is armed!");
+                                mainWindow.disarmVehicleRequest()
+                            } else {
+                                if (forceArm) {
+                                    mainWindow.forceArmVehicleRequest()
+                                } else {
+                                    mainWindow.armVehicleRequest()
+                                    console.log("armvehicle");
+                                }
+                            }
+                            forceArm = false
+                            mainWindow.hideIndicatorPopup()
+
+                            var altitudeChange = 0
+
+                            hideTrigger = false
+                            guidedController.executeAction(_root.action, _root.actionData, altitudeChange, _root.optionChecked)
+                            if (mapIndicator) {
+                                mapIndicator.actionConfirmed()
+                                mapIndicator = undefined
+                            }
+
+
+                        }
+                            _root.visible = true
                         }
                     }
                     Text {
@@ -49,10 +109,10 @@ Item {
                     anchors.bottom: arm_button.bottom
                     width: 60
                     height: 35
-//                    Source:"qrc:/qmlimages/takeoff_2.png"
                     color: "#acb7ce"
                     radius:         4
                     Image{
+                        height: 20
                         fillMode:   Image.PreserveAspectFit
                         smooth:     true
                         source: "qrc:/qmlimages/takeoff_2.png"
@@ -61,8 +121,11 @@ Item {
                     MouseArea {
                         anchors.fill:   parent
                         onClicked: {
+                            var altitudeChange = 10
+                            guidedController.executeAction(3, _root.actionData, altitudeChange, _root.optionChecked)
                         }
                     }
+
                     }
 
                     Text {
@@ -84,6 +147,7 @@ Item {
                         radius:         4
                         color: "#acb7ce"
                         Image{
+                            height: 20
                             fillMode:   Image.PreserveAspectFit
                             smooth:     true
                             source: "qrc:/qmlimages/land_1.png"
@@ -92,6 +156,8 @@ Item {
                         MouseArea {
                             anchors.fill:   parent
                             onClicked: {
+                                var altitudeChange = 10
+                                guidedController.executeAction(2, _root.actionData, altitudeChange, _root.optionChecked)
                             }
                         }
                         }
@@ -105,42 +171,81 @@ Item {
                             font.pointSize: 10
                             font.bold: true
                             }
-                        Image{
-                            id: set_home_logo
-                            x:15; y:100
-                            width:  60
+                        Rectangle {
+                            id: sethome_button
+                            x: 20; y: 115
+                            anchors.top: takeoff_button.bottom
+                            anchors.topMargin: 32
+                            width: 60
                             height: 35
-                            fillMode:   Image.PreserveAspectFit
-                            smooth:     true
-                            source: "qrc:/qmlimages/home_1.png"
+                            radius:         4
+                            color: "#acb7ce"
+                            Image{
+                                id: set_home_logo
+                                height: 20
+                                fillMode:   Image.PreserveAspectFit
+                                smooth:     true
+                                source: "qrc:/qmlimages/home_1.png"
+//                                sourceSize: Qt.size(parent.width, parent.height)
+                                anchors.centerIn: parent
+                                }
+                        ColorOverlay{
+                        anchors.fill: set_home_logo
+                        source: set_home_logo
+
+                        color: "#0c213a" }
+                        MouseArea {
+                            anchors.fill:   parent
+                            onClicked: {
+//                                _activeVehicle.sendCommand(179,1,true)
+                                _activeVehicle.sendCommand(defaultComponentId,179,true,1);
                             }
+                        }
+                        }
                         Text {
                             text: "Set Home"
-                            x: 15; y: 135
+                            x: 17; y: 135
                             color: "#acb7ce"
-                            anchors.topMargin: 4
+                            anchors.topMargin: 6
                             anchors.top: set_home_logo.bottom
                             font.pointSize: 10
                             font.bold: true
                             }
-                        Image{
-                            id: returntohome_logo
-                            anchors.left: set_home_logo.right
-                            anchors.leftMargin: 8
-                            anchors.top: set_home_logo.top
-                            anchors.bottom: set_home_logo.bottom
-//                            x:15; y:100
-                            width:      60
+                        Rectangle {
+                            id: return_to_home_button
+                            x: 90; y: 115
+                            anchors.top: takeoff_button.bottom
+                            anchors.topMargin: 32
+                            width: 60
                             height: 35
-                            fillMode:   Image.PreserveAspectFit
-                            smooth:     true
-                            source: "qrc:/qmlimages/returntohome.png"
+                            radius:         4
+                            color: "#acb7ce"
+                            Image{
+                                id: returntohome_logo
+                                height: 20
+                                fillMode:   Image.PreserveAspectFit
+                                smooth:     true
+                                source: "qrc:/qmlimages/returntohome.png"
+//                                sourceSize: Qt.size(parent.width, parent.height)
+                                anchors.centerIn: parent
+                                }
+                        ColorOverlay{
+                        anchors.fill: returntohome_logo
+                        source: returntohome_logo
+                        color: "#0c213a" }
+                        MouseArea {
+                            anchors.fill:   parent
+                            onClicked: {
+                                var altitudeChange = 10
+                                guidedController.executeAction(1, _root.actionData, altitudeChange, _root.optionChecked)
                             }
+                        }
+                        }
                         Text {
                             text: "RTH"
-                            x: 100; y: 135
+                            x: 110; y: 135
                             color: "#acb7ce"
-                            anchors.topMargin: 4
+                            anchors.topMargin: 6
                             anchors.top: returntohome_logo.bottom
                             font.pointSize: 10
                             font.bold: true
@@ -161,13 +266,21 @@ Item {
                         text: qsTr("Camera Controls")
                     }
                     Rectangle{ id: gimbal_controls_rect
-                        x: 20; y:40
+//                        x: 20; y:40
+                        anchors.top: parent.top
+                        anchors.topMargin: 35
+                        anchors.left: parent.left
+                        anchors.leftMargin: 10
                         width:210; height:200
                         color: "#1d3148"
                         radius: 2
                         Column{
                             spacing: 8
-                            x:10;y:10
+//                            x:10;y:10
+                            anchors.top: parent.top
+                            anchors.topMargin: 10
+                            anchors.left: parent.left
+                            anchors.leftMargin: 10
                             Rectangle{
                                 id: pan_rect
                                 width:180
@@ -182,11 +295,14 @@ Item {
                                         font.pointSize: 12
                                      }
                                     Rectangle{
-                                    width:170; height:20
+                                    width:170; height:30
                                     color: "#4c596a"
                                     Slider{
                                         id:                 pan_slider
+                                        height: parent.height
                                         width:              ScreenTools.defaultFontPixelWidth * 25
+
+
                                         }
                                     }
                                 }
@@ -205,11 +321,12 @@ Item {
                                         font.pointSize: 12
                                      }
                                     Rectangle{
-                                    width:170; height:20
+                                    width:170; height:30
                                     color: "#4c596a"
                                     Slider{
                                         id:                 tilt_slider
                                         width:              ScreenTools.defaultFontPixelWidth * 25
+                                        height: parent.height
                                         }
                                     }
                                 }
@@ -228,11 +345,12 @@ Item {
                                         font.pointSize: 12
                                      }
                                     Rectangle{
-                                    width:170; height:20
+                                    width:170; height:30
                                     color: "#4c596a"
                                     Slider{
                                         id:                 zoom_slider
                                         width:              ScreenTools.defaultFontPixelWidth * 25
+                                        height: parent.height
                                         }
                                     }
                                 }
@@ -309,20 +427,43 @@ Item {
                                 font.bold: true
                                 }}
                             }
-//                        Rectangle{ id:first_point
-//                                x:20; y:85
-//                                width:200; height:100
-//                                color:"#4c596a"
-//                                Text { x:10;y:10
-//                                    text: qsTr("1st Point")
-//                                    color: "#0c213a"
-//                                    font.pointSize: 12
-//                                }
-//                        }
-             }
+                    Rectangle{
+                        id: container_id
+                        width: 200; height: 400
+                        anchors.top: start_mission.bottom
+                        anchors.topMargin: 10
+                        anchors.left:parent.left
+                        anchors.leftMargin: 15
+
+                        ListView{
+                            id: listview_id
+                            anchors.fill: parent
+                            model:5
+                            clip: true
+                            flickableDirection: Flickable.VerticalFlick
+                            boundsBehavior: Flickable.StopAtBounds
+//                            Layout.fillWidth: true
+//                            Layout.fillHeight: true
+                            ScrollBar.vertical: ScrollBar {}
+                            delegate: HCControls{}
+/*                            delegate:Button{
+                            width:50}*/}
+                    }
+
+//                    HCControls{
+//                    id: view_id
+////                    anchors.fill: parent
+//                    anchors.top: start_mission.bottom
+//                    anchors.topMargin: 10
+//                    anchors.left: parent.left
+//                    anchors.leftMargin: 20
+//            }
+
 
         }
+    }
 }
+
 
 
 

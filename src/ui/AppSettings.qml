@@ -63,7 +63,7 @@ Rectangle {
                     text:               modelData.title
                     autoExclusive:      true
                     Layout.fillWidth:   true
-                    visible:  (modelData.title === "General" || modelData.title === "Offline Maps" || modelData.title === "Help") || HCLoginModel.isAdvanceUser
+                    visible:  (modelData.title === "General" || modelData.title === "Offline Maps" || modelData.title === "Help" || modelData.title === "Comm Links") || HCLoginModel.isAdvanceUser
 
                     onClicked: {
                         console.log(modelData.title)
