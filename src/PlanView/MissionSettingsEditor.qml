@@ -255,7 +255,7 @@ Rectangle {
                     columns:        2
 
                     QGCLabel {
-                        text: qsTr("Altitude")
+                        text: qsTr("Altitudeee!")
                     }
                     FactTextField {
                         fact:               missionItem.plannedHomePositionAltitude

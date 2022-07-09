@@ -32,6 +32,7 @@
 #include "QGCCorePlugin.h"
 #include "TakeoffMissionItem.h"
 #include "PlanViewSettings.h"
+#include <QDebug>
 
 #define UPDATE_TIMEOUT 5000 ///< How often we check for bounding box changes
 
@@ -312,6 +313,7 @@ int MissionController::_nextSequenceNumber(void)
 
 VisualMissionItem* MissionController::_insertSimpleMissionItemWorker(QGeoCoordinate coordinate, MAV_CMD command, int visualItemIndex, bool makeCurrentItem)
 {
+     qDebug() << "Adding Mission item!! : " << _visualItems->count();
     int sequenceNumber = _nextSequenceNumber();
     SimpleMissionItem * newItem = new SimpleMissionItem(_masterController, _flyView, false /* forLoad */);
     newItem->setSequenceNumber(sequenceNumber);
@@ -338,6 +340,8 @@ VisualMissionItem* MissionController::_insertSimpleMissionItemWorker(QGeoCoordin
     } else {
         _visualItems->insert(visualItemIndex, newItem);
     }
+
+    qDebug() << "Mission item added!!" << _visualItems->count();
 
     // We send the click coordinate through here to be able to set the planned home position from the user click location if needed
     _recalcAllWithCoordinate(coordinate);

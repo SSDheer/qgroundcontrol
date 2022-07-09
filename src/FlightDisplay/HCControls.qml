@@ -5,18 +5,25 @@ import QtQuick.Controls         1.4
 import QtQuick.Dialogs          1.2
 import QtGraphicalEffects       1.0
 
+import QGroundControl               1.0
+import QGroundControl.Controls      1.0
+import QGroundControl.FactControls  1.0
+
 Rectangle{
-    id: waypoint_rect
-    width: 200; height: 100
+    id: _root_rect
+    width: 200; height:210
     color: "#4c596a"
     radius: 4
+    property var missionItem
+    property int _obj_index
+    property int count
+    signal remove
 
+    ColumnLayout{
+        id: _columnlayout
+    RowLayout{
     Rectangle {
         id: land_button
-        anchors.top: parent.top
-        anchors.topMargin: 3
-        anchors.left: parent.left
-        anchors.leftMargin: 5
         width: 20
         height: 35
         color: "#4c596a"
@@ -28,34 +35,43 @@ Rectangle{
             anchors.centerIn: parent
             }
     }
+    ColumnLayout{
     Text {
         id: lat_text
-        text: "Lat :"
+        text: (missionItem !== null) ? "Lat :" + missionItem.coordinate.latitude : "Lat :"
         color: "#acb7ce"
-        anchors.top: parent.top
-        anchors.topMargin: 4
-        anchors.left: land_button.right
-        anchors.leftMargin: 2
         font.pointSize: 8
         font.bold: true
         }
+
     Text {
         id: long_text
-        text: "Long :"
+        text: (missionItem !== null) ? "Long :" + missionItem.coordinate.longitude : "Long :"
         color: "#acb7ce"
-        anchors.topMargin: 2
-        anchors.top: lat_text.bottom
-        anchors.left: land_button.right
-        anchors.leftMargin: 2
         font.pointSize: 8
         font.bold: true
         }
+    }
+    }
+
+    RowLayout{
+    Text {
+        id: alt_text
+        text:  "Alt :"
+        color: "#acb7ce"
+        font.pointSize: 8
+        font.bold: true
+        }
+    FactTextField {
+        id:                 altField
+        Layout.fillWidth:   true
+        fact:               missionItem.altitude
+//                    visible:     false
+    }
+    }
+    RowLayout{
     Rectangle {
         id: record_button
-        anchors.top: parent.top
-        anchors.topMargin: 3
-        anchors.left: parent.left
-        anchors.leftMargin: 100
         width: 20
         height: 35
         color: "#4c596a"
@@ -71,19 +87,13 @@ Rectangle{
         id: record_options
         width: 70
         model: ["None", "Capture", "Record"]
-        anchors.left: record_button.right
-        anchors.leftMargin: 2
-        anchors.top: parent.top
-        anchors.topMargin: 8
 
     }
+    }
 
+    RowLayout{
     Rectangle {
         id: delay_button
-        anchors.bottom: parent.bottom
-        anchors.bottomMargin: 10
-        anchors.left: parent.left
-        anchors.leftMargin: 5
         width: 20
         height: 35
         color: "#4c596a"
@@ -95,43 +105,84 @@ Rectangle{
             anchors.centerIn: parent
             }
     }
-    ComboBox {
-        id: delay_options
-        width: 60
-        model: ["None", "Capture", "Record"]
-        anchors.left: delay_button.right
-        anchors.leftMargin: 4
-        anchors.bottom: parent.bottom
-        anchors.bottomMargin: 20
+    FactTextField {
+        id:                 delayFeild
+        Layout.fillWidth:   true
+        fact:  missionItem.delayFact
+    }
     }
 
-    Rectangle {
-        id: takeof_button
+    RowLayout{
 
-        anchors.bottom: parent.bottom
-        anchors.bottomMargin: 10
-        anchors.left: parent.left
-        anchors.leftMargin: 100
-        width: 20
-        height: 35
-        color: "#4c596a"
-        Image{
-            height: 30
-            fillMode:   Image.PreserveAspectFit
-            smooth:     true
-            source: "qrc:/qmlimages/takeoff_1.png"
-            anchors.centerIn: parent
+        RowLayout{
+            visible: _obj_index === 0
+        Rectangle {
+            id: takeof_button
+            width: 20
+            height: 35
+            color: "#4c596a"
+            Image{
+                height: 30
+                fillMode:   Image.PreserveAspectFit
+                smooth:     true
+                source: "qrc:/qmlimages/takeoff_1.png"
+                anchors.centerIn: parent
+                }
+        }
+        ComboBox {
+            currentIndex: 0
+            id: takeoff_options
+            width: 70
+            model: { ["None","Takeoff"]}
+            onCurrentIndexChanged:{
+                console.log("command name check", missionItem.commandName);
+                if( _obj_index === 0 && currentIndex == 1) {
+                    console.log("Takeoff set");
+                    missionItem.setCommand(22);//MAV_CMD_NAV_TAKEOFF
+                }
             }
-    }
-    ComboBox {
-        id: takeoff_options
-        width: 70
-        model: ["Take Off", "Set Home", "RTH"]
-        anchors.left: takeof_button.right
-        anchors.leftMargin: 3
-        anchors.bottom: parent.bottom
-        anchors.bottomMargin: 20
+         }
 
-    }
+        }
+
+        RowLayout{
+            visible: _obj_index === count -1
+        Rectangle {
+            id: rth_button
+            width: 20
+            height: 35
+            color: "#4c596a"
+            Image{
+                height: 30
+                fillMode:   Image.PreserveAspectFit
+                smooth:     true
+                source: "qrc:/qmlimages/returntohome.png"
+                anchors.centerIn: parent
+                }
+        }
+        ComboBox {
+            currentIndex: 0
+            id: return_options
+            width: 70
+            model: {["None", "RTH","Land"]}
+            onCurrentIndexChanged:{
+                console.log("Index changed combo", currentText);
+                console.log("command name check in rth", missionItem.commandName)
+                if( _obj_index === count -1  ) {
+                    if(currentIndex == 1){
+                    console.log("RTH set");
+                    missionItem.setCommand(20);//MAV_CMD_NAV_RTH
+                    }
+                    if(currentIndex == 2){
+                         missionItem.setCommand(21);//MAV_CMD_NAV_LAND
+
+                    }
+                }
+            }
+         }
+
+      }
+   }
+  }
 }
 

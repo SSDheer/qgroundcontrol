@@ -197,6 +197,8 @@ Rectangle {
             onClicked: {
                 currentItemScope.focus = true
                 hamburgerMenu.popup()
+//                console.log(JSON.stringify(missionItem))
+                console.log("coordinate value",missionItem.coordinate.latitude)
             }
 
             QGCMenu {

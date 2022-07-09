@@ -58,6 +58,7 @@ SimpleMissionItem::SimpleMissionItem(PlanMasterController* masterController, boo
     , _supportedCommandFact             (0, "Command:",             FactMetaData::valueTypeUint32)
     , _altitudeFact                     (0, "Altitude",             FactMetaData::valueTypeDouble)
     , _amslAltAboveTerrainFact          (0, "Alt above terrain",    FactMetaData::valueTypeDouble)
+    , _delayFact                (0,         "Delay",                FactMetaData::valueTypeDouble)
     , _param1MetaData                   (FactMetaData::valueTypeDouble)
     , _param2MetaData                   (FactMetaData::valueTypeDouble)
     , _param3MetaData                   (FactMetaData::valueTypeDouble)
@@ -87,6 +88,7 @@ SimpleMissionItem::SimpleMissionItem(PlanMasterController* masterController, boo
     , _supportedCommandFact     (0,         "Command:",             FactMetaData::valueTypeUint32)
     , _altitudeFact             (0,         "Altitude",             FactMetaData::valueTypeDouble)
     , _amslAltAboveTerrainFact  (0,         "Alt above terrain",    FactMetaData::valueTypeDouble)
+    , _delayFact                (0,         "Delay",                FactMetaData::valueTypeDouble)
     , _param1MetaData           (FactMetaData::valueTypeDouble)
     , _param2MetaData           (FactMetaData::valueTypeDouble)
     , _param3MetaData           (FactMetaData::valueTypeDouble)
@@ -118,6 +120,8 @@ SimpleMissionItem::SimpleMissionItem(PlanMasterController* masterController, boo
 
     _isCurrentItem = missionItem.isCurrentItem();
     _altitudeFact.setRawValue(specifiesAltitude() ? _missionItem._param7Fact.rawValue() : qQNaN());
+    // HC ROBOTICS
+    _delayFact.setRawValue(0);
     _amslAltAboveTerrainFact.setRawValue(qQNaN());
 
     // In flyView we skip some of the intialization to save memory
@@ -152,6 +156,7 @@ void SimpleMissionItem::_connectSignals(void)
     connect(this,                               &SimpleMissionItem::altitudeModeChanged,    this, &SimpleMissionItem::_setDirty);
 
     connect(&_altitudeFact,                     &Fact::valueChanged,                        this, &SimpleMissionItem::_altitudeChanged);
+    connect(&_delayFact,                        &Fact::valueChanged,                        this, &SimpleMissionItem::_delayChanged);
     connect(this,                               &SimpleMissionItem::altitudeModeChanged,    this, &SimpleMissionItem::_altitudeModeChanged);
     connect(this,                               &SimpleMissionItem::terrainAltitudeChanged, this, &SimpleMissionItem::_terrainAltChanged);
 
@@ -749,6 +754,10 @@ void SimpleMissionItem::_terrainAltChanged(void)
     }
 }
 
+void SimpleMissionItem::_delayChanged(void){
+        _missionItem._param1Fact.setRawValue(_delayFact.rawValue());
+}
+
 SimpleMissionItem::ReadyForSaveState SimpleMissionItem::readyForSaveState(void) const
 {
     if (_wizardMode) {
@@ -763,9 +772,13 @@ void SimpleMissionItem::_setDefaultsForCommand(void)
 {
     // First reset params 1-4 to 0, we leave 5-7 alone to preserve any previous location information on command change
     _missionItem._param1Fact.setRawValue(0);
+
     _missionItem._param2Fact.setRawValue(0);
     _missionItem._param3Fact.setRawValue(0);
     _missionItem._param4Fact.setRawValue(0);
+
+
+    _delayFact.setRawValue(0);
 
     if (!specifiesCoordinate() && !isStandaloneCoordinate()) {
         // No need to carry across previous lat/lon

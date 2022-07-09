@@ -89,7 +89,9 @@ ApplicationWindow {
         readonly property real      defaultTextWidth:               ScreenTools.defaultFontPixelWidth
         readonly property var       planMasterControllerFlyView:    viewbar.planController
         readonly property var       guidedControllerFlyView:        viewbar.guidedController
+        readonly property var       editorMapPlanVieww:             planView.editorMapPlanview
 
+        property bool               mission_mode:                   hcsideBar.mission_enableTrigger
         property var                planMasterControllerPlanView:   null
         property var                currentPlanMissionItem:         planMasterControllerPlanView ? planMasterControllerPlanView.missionController.currentPlanViewItem : null
     }
@@ -700,25 +702,18 @@ ApplicationWindow {
         anchors.fill:   parent
         visible:        false
     }
-//    HCControls{
-//        id:     hccontrolsView
-//        anchors.fill:  parent
-//        anchors.right: parent.right
-//        anchors.leftMargin: 10
-
-//        }
-//    HCView{
-//        id: viewbar
-//        anchors.fill:   parent}
 
     HCSideBar{
         id:   hcsideBar
+        anchors.fill: parent
+//        anchors.right: parent.right
     }
 
 
     Rectangle{
         id:messagealert
         x: 255
+//        anchors.left: hcsideBar.right
         y: 10
         color:"#e3ecff"
         width:700
@@ -1083,3 +1078,4 @@ ApplicationWindow {
         }
     }
 }
+

@@ -31,6 +31,9 @@ import QGroundControl.LoginModel        1.0
 Item {
     id: _root
 
+    property var editorMapPlanview:  editorMap
+    property bool mission_enable: globals.mission_mode
+
     property bool planControlColapsed: false
 
     readonly property int   _decimalPlaces:             8
@@ -416,6 +419,8 @@ Item {
         id:             panel
         anchors.fill:   parent
 
+
+
         FlightMap {
             id:                         editorMap
             anchors.fill:               parent
@@ -460,7 +465,8 @@ Item {
 
                     switch (_editingLayer) {
                     case _layerMission:
-                        if (addWaypointRallyPointAction.checked) {
+                        if (mission_enable) {
+//                            insertTakeItemAfterCurrent()
                             insertSimpleItemAfterCurrent(coordinate)
                         } else if (_addROIOnClick) {
                             insertROIAfterCurrent(coordinate)
@@ -614,7 +620,7 @@ Item {
         ToolStrip {
             id:                 toolStrip
             anchors.margins:    _toolsMargin
-            anchors.left:       parent.left
+            anchors.right:       parent.right
             anchors.top:        parent.top
             z:                  QGroundControl.zOrderWidgets
             maxHeight:          parent.height - toolStrip.y
@@ -635,11 +641,11 @@ Item {
             ToolStripActionList {
                 id: toolStripActionList
                 model: [
-                    ToolStripAction {
-                        text:           qsTr("Fly")
-                        iconSource:     "/qmlimages/PaperPlane.svg"
-                        onTriggered:    mainWindow.showFlyView()
-                    },
+//                    ToolStripAction {
+//                        text:           qsTr("Fly")
+//                        iconSource:     "/qmlimages/PaperPlane.svg"
+//                        onTriggered:    mainWindow.showFlyView()
+//                    },
                     ToolStripAction {
                         text:                   qsTr("File")
                         enabled:                !_planMasterController.syncInProgress
@@ -1255,3 +1261,5 @@ Item {
         }
     }
 }
+
+

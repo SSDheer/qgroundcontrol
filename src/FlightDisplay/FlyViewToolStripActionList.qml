@@ -24,7 +24,8 @@ ToolStripActionList {
         ToolStripAction {
             text:           qsTr("Plan")
             iconSource:     "/qmlimages/Plan.svg"
-            onTriggered:    mainWindow.showPlanView()
+//            onTriggered:    mainWindow.showPlanView()
+            visible: mainWindow.showPlanView()
         },
         PreFlightCheckListShowAction { onTriggered: displayPreFlightChecklist() },
         GuidedActionTakeoff { },

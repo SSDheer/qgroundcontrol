@@ -154,7 +154,7 @@ Rectangle {
 
                         QGCLabel {
                             Layout.alignment:   Qt.AlignBaseline
-                            text:               qsTr("Altitude")
+                            text:               qsTr("Altitudee check!")
                             font.pointSize:     ScreenTools.smallFontPointSize
                         }
                         QGCLabel {
@@ -176,6 +176,7 @@ Rectangle {
                     id:                 altField
                     Layout.fillWidth:   true
                     fact:               missionItem.altitude
+//                    visible:     false
                 }
 
                 QGCLabel {

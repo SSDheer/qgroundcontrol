@@ -4,12 +4,22 @@ import QtQuick.Layouts          1.2
 import QtQuick.Controls         2.1
 import QtQuick.Dialogs          1.2
 import QtGraphicalEffects       1.0
-import QGroundControl.ScreenTools 1.0
-import QGroundControl               1.0
-import QGroundControl.Controls      1.0
-import QGroundControl.Vehicle 1.0
-import QGroundControl.FactSystem 1.0
-import QGroundControl.FactControls 1.0
+import QtQuick.Window           2.2
+
+
+import QGroundControl                   1.0
+import QGroundControl.Controls          1.0
+import QGroundControl.ScreenTools       1.0
+import QGroundControl.Vehicle           1.0
+import QGroundControl.FactSystem        1.0
+import QGroundControl.FactControls      1.0
+import QGroundControl.FlightMap         1.0
+import QGroundControl.Controllers       1.0
+import QGroundControl.ShapeFileHelper   1.0
+import QGroundControl.Airspace          1.0
+import QGroundControl.Airmap            1.0
+import QGroundControl.Palette           1.0
+
 
 
 Item { id: _root
@@ -17,11 +27,21 @@ Item { id: _root
     property int    action
     property var    actionData
     property var    mapIndicator
+    readonly property int   _decimalPlaces:             8
     property bool   hideTrigger:        false
     property alias  optionText:         optionCheckBox.text
     property alias  optionChecked:      optionCheckBox.checked
     property var    guidedController:  _guidedController
     property var    _guidedController:      globals.guidedControllerFlyView
+    property var    _planMasterController: globals.planMasterControllerPlanView
+    property var    _missionController:                 _planMasterController.missionController
+    property var    _visualItems:                       _missionController.visualItems
+
+    property  var   editorMapCenter:  _editorMapCenter
+    property  var   _planViewCenter:  globals.editorMapPlanVieww
+    property  var   _editorMapCenter: _planViewCenter.center
+
+    property bool   mission_enableTrigger
 
     property var    _activeVehicle:     QGroundControl.multiVehicleManager.activeVehicle
     property bool   _communicationLost: _activeVehicle ? _activeVehicle.vehicleLinkManager.communicationLost : false
@@ -31,6 +51,12 @@ Item { id: _root
 
     property bool _emergencyAction: action === guidedController.actionEmergencyStop
 
+    property bool   _controllerValid:           _planMasterController !== undefined && _planMasterController !== null
+    property bool   _controllerOffline:         _controllerValid ? _planMasterController.offline : true
+    property var    _controllerDirty:           _controllerValid ? _planMasterController.dirty : false
+    property var    _controllerSyncInProgress:  _controllerValid ? _planMasterController.syncInProgress : false
+    property real   _controllerProgressPct:     _controllerValid ? _planMasterController.missionController.progressPct : 0
+
     Component.onCompleted: guidedController.confirmDialog = this
     QGCCheckBox {
         id:                 optionCheckBox
@@ -38,6 +64,43 @@ Item { id: _root
         text:               ""
         visible:            text !== ""
     }
+
+    Component {
+        id: clearVehicleMissionDialog
+        QGCViewMessage {
+            message: qsTr("Are you sure you want to remove all mission items and clear the mission from the vehicle?")
+            function accept() {
+                _planMasterController.removeAllFromVehicle()
+                _missionController.setCurrentPlanViewSeqNum(0, true)
+//                hideDialog()
+            }
+        }
+    }
+
+    function updateAirspace(reset) {
+        if(_airspaceEnabled) {
+            var coordinateNW = editorMap.toCoordinate(Qt.point(0,0), false /* clipToViewPort */)
+            var coordinateSE = editorMap.toCoordinate(Qt.point(width,height), false /* clipToViewPort */)
+            if(coordinateNW.isValid && coordinateSE.isValid) {
+                QGroundControl.airspaceManager.setROI(coordinateNW, coordinateSE, true /*planView*/, reset)
+            }
+        }
+    }
+
+    function mapCenter() {
+//        var coordinate = editorMap.center
+        var coordinate = _editorMapCenter
+        coordinate.latitude  = coordinate.latitude.toFixed(_decimalPlaces)
+        coordinate.longitude = coordinate.longitude.toFixed(_decimalPlaces)
+        coordinate.altitude  = coordinate.altitude.toFixed(_decimalPlaces)
+        return coordinate
+    }
+
+    function insertTakeItemAfterCurrent() {
+        var nextIndex = _missionController.currentPlanViewVIIndex + 1
+        _missionController.insertTakeoffItem(mapCenter(), nextIndex, true /* makeCurrentItem */)
+    }
+
     Column{
         Rectangle{ id: controls
                 width:250; height: 200
@@ -102,7 +165,6 @@ Item { id: _root
                      }
                 Rectangle {
                     id: takeoff_button
-//                    x: 20; y:35
                     anchors.leftMargin: 20
                     anchors.left: arm_button.right
                     anchors.top: arm_button.top
@@ -251,7 +313,7 @@ Item { id: _root
                             font.bold: true
                             }
 
-        }
+        } // Controls Rectangle
         Rectangle{ width:250; height:1
                    color: "white"
         }
@@ -276,7 +338,6 @@ Item { id: _root
                         radius: 2
                         Column{
                             spacing: 8
-//                            x:10;y:10
                             anchors.top: parent.top
                             anchors.topMargin: 10
                             anchors.left: parent.left
@@ -301,12 +362,10 @@ Item { id: _root
                                         id:                 pan_slider
                                         height: parent.height
                                         width:              ScreenTools.defaultFontPixelWidth * 25
-
-
                                         }
                                     }
                                 }
-                            }
+                            } // Pan Rectangle
                             Rectangle{
                                 id: tilt_rect
                                 width:180
@@ -330,7 +389,7 @@ Item { id: _root
                                         }
                                     }
                                 }
-                            }
+                            } // Tilt Rectangle
                             Rectangle{
                                 id: zoom_rect
                                 width:180
@@ -354,83 +413,178 @@ Item { id: _root
                                         }
                                     }
                                 }
-                            }
+                            } // Zoom Rectangle
 
-                        }
-                    }
-        }
+                        } // column
+                     } // gimbale control - Rectangle
+        } // Camera controls - Rectangle
+
         Rectangle{ width:250; height:1
                    color: "white"
+        }
+        Connections {
+            target: _controllerValid ? _planMasterController.missionController : null
+            onProgressPctChanged: {
+                if (_controllerProgressPct === 1) {
+                    uploadCompleteText.visible = true
+                    resetProgressTimer.start()
+                } else if (_controllerProgressPct > 0) {
+                    progressBar.visible = true
+                }
+            }
+        }
+        Timer {
+            id:             resetProgressTimer
+            interval:       5000
+            onTriggered: {
+                progressBar.visible = true
+                uploadCompleteText.visible = false
+            }
+        }
+
+        QGCLabel {
+            id:                     progressBar
+            anchors.fill:           parent
+            font.pointSize:         ScreenTools.largeFontPointSize
+            visible:                false
         }
         Rectangle{ id: mission_controls
                     width: 250; height: 600
                     color: "#0c213a"
                     Text {
-                        x: 20; y: 5
+                        anchors.top: parent.top
+                        anchors.topMargin: 5
+                        anchors.left:parent.left
+                        anchors.leftMargin: 15
                         font.bold: true
                         font.pointSize: 12
                         color: "#acb7ce"
                         text: "Mission Controls"
                         }
-                    Rectangle{
+                    ColumnLayout{
+                        id: mission_options
+                        anchors.top: parent.top
+                        anchors.topMargin: 30
+                        anchors.left:parent.left
+                        anchors.leftMargin: 15
+                        RowLayout{
+                        CheckBox{
+                            id: waypoints_start_check
+                            onToggled: {
+                                if(checkState === Qt.Checked){
+                                    mission_enableTrigger = true
+                                console.log(" checkbox checked true")}
+                                if(checkState === Qt.Unchecked){
+                                    mission_enableTrigger = false
+                                console.log(" checkbox Unchecked true")}
+                            }
 
-                        id:start_mission
-                        x:20; y:35
-                        radius:4
-                        width:90; height:40
-                        color:"#acb7ce"
-                        MouseArea{}
-                        Column{
-                            spacing:4
-                            anchors.centerIn: parent
-                            Text {
-                                text: qsTr("Start")
-                                color: "#0c213a"
+                        }
+                        Text {
+                                text: qsTr("Mission Mode")
+                                color: "#acb7ce"
                                 font.pointSize: 10
                                 font.bold: true
-                                }
-                            Text {
-                                text: qsTr("Mission")
-                                color: "#0c213a"
-                                font.pointSize: 10
-                                font.bold: true
-                                }}
+                        }
                         }
 
-                    Rectangle{
-
-                        id:end_mission
-                        x:20; y:35
-                        radius:4
-                        width:90; height:40
-                        color:"#acb7ce"
-                        anchors.leftMargin: 20
-                        anchors.left: start_mission.right
-                        anchors.top: start_mission.top
-                        anchors.bottom: start_mission.bottom
-                        MouseArea{}
-                        Column{
-                            spacing:4
-                            anchors.centerIn: parent
-//                            anchors.verticalCenter: parent.verticalCenter
-//                            anchors.horizontalCenter: parent.horizontalCenter
+                        Rectangle{
+                            id:start_mission
+                            radius:4
+                            Layout.fillWidth:   true
+//                            width:110;
+                            height:25
+                            color:"#acb7ce"
+                            MouseArea{
+                                anchors.fill: parent
+                                onClicked:{
+                             insertTakeItemAfterCurrent()
+                                }
+                            }
                             Text {
-                                text: qsTr("End")
+                                text: qsTr("Start Mission")
+                                anchors.top: parent.top
+                                anchors.topMargin: 5
+                                anchors.left: parent.left
+                                anchors.leftMargin: 35
                                 color: "#0c213a"
                                 font.pointSize: 10
                                 font.bold: true
                                 }
+                            }
+
+                        Rectangle{
+                            id:end_mission
+                            radius:4
+                            Layout.fillWidth:   true
+                            height:25
+                            color:"#acb7ce"
+                            MouseArea{}
                             Text {
-                                text: qsTr("Mission")
+                                text: qsTr("End Mission")
+                                anchors.top: parent.top
+                                anchors.topMargin: 5
+                                anchors.left: parent.left
+                                anchors.leftMargin: 35
                                 color: "#0c213a"
                                 font.pointSize: 10
                                 font.bold: true
-                                }}
+                                }
+                                }
+                        QGCButton {
+                            id:          uploadButton
+                            //                            anchors.top:text_mission.bottom
+                            Layout.fillWidth:   true
+                            Text {
+                                text:        _controllerDirty ? qsTr("Upload Required") : qsTr("Upload")
+                                anchors.top: parent.top
+                                anchors.topMargin: 5
+                                anchors.left: parent.left
+                                anchors.leftMargin: 25
+                                color: "#0c213a"
+                                font.pointSize: 10
+                                font.bold: true
                             }
+                            enabled:     !_controllerSyncInProgress
+//                                   visible:     !_controllerOffline && !_controllerSyncInProgress && !uploadCompleteText.visible
+                            primary:     _controllerDirty
+                            visible:     true
+                            onClicked:   _planMasterController.upload()
+                            PropertyAnimation on opacity {
+                                easing.type:    Easing.OutQuart
+                                from:           0.5
+                                to:             1
+                                loops:          Animation.Infinite
+                                running:        _controllerDirty && !_controllerSyncInProgress
+                                alwaysRunToEnd: true
+                                duration:       2000
+                            }
+                        }
+
+                        QGCButton {
+                            text:               qsTr("Clear")
+                            Layout.fillWidth:   true
+                            Layout.columnSpan:  2
+//                            enabled:            !_planMasterController.offline && !_planMasterController.syncInProgress
+//                            visible:            !QGroundControl.corePlugin.options.disableVehicleConnection
+                            visible:            true
+                            onClicked: {
+//                                dropPanel.hide()
+                                mainWindow.showComponentDialog(clearVehicleMissionDialog, text, mainWindow.showDialogDefaultWidth, StandardButton.Yes | StandardButton.Cancel)
+                            }
+                        }
+                        QGCLabel {
+                            id:                     uploadCompleteText
+                            font.pointSize:         ScreenTools.largeFontPointSize
+                            text:                   qsTr("Done")
+                            visible:                false
+                        }
+                    } // Column Layout
+
                     Rectangle{
                         id: container_id
                         width: 200; height: 400
-                        anchors.top: start_mission.bottom
+                        anchors.top: mission_options.bottom
                         anchors.topMargin: 10
                         anchors.left:parent.left
                         anchors.leftMargin: 15
@@ -438,32 +592,30 @@ Item { id: _root
                         ListView{
                             id: listview_id
                             anchors.fill: parent
-                            model:5
+                            model:_missionController.visualItems
+                            orientation:ListView.Vertical
                             clip: true
+                             highlightRangeMode: ListView.StrictlyEnforceRange
+                            spacing:ScreenTools.defaultFontPixelHeight / 4
                             flickableDirection: Flickable.VerticalFlick
                             boundsBehavior: Flickable.StopAtBounds
-//                            Layout.fillWidth: true
-//                            Layout.fillHeight: true
                             ScrollBar.vertical: ScrollBar {}
-                            delegate: HCControls{}
-/*                            delegate:Button{
-                            width:50}*/}
-                    }
-
-//                    HCControls{
-//                    id: view_id
-////                    anchors.fill: parent
-//                    anchors.top: start_mission.bottom
-//                    anchors.topMargin: 10
-//                    anchors.left: parent.left
-//                    anchors.leftMargin: 20
-//            }
-
-
-        }
-    }
-}
-
-
+                            delegate: HCControls{
+                                missionItem: object
+                                _obj_index: listview_id.currentIndex
+                                count: listview_id.count
+                                onRemove: {
+                                    var removeVIIndex = index
+                                    _missionController.removeVisualItem(removeVIIndex)
+                                    if (removeVIIndex >= _missionController.visualItems.count) {
+                                        removeVIIndex--
+                                    }
+                                }
+                            } // delegate
+                        } // ListView
+                    } // Delegate - Rectangle
+                } // Mission controls - Rectangle
+    } //Column
+} //Item
 
 
