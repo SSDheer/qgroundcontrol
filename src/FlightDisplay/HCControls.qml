@@ -11,7 +11,7 @@ import QGroundControl.FactControls  1.0
 
 Rectangle{
     id: _root_rect
-    width: 200; height:210
+    width: 200; height:230
     color: "#4c596a"
     radius: 4
     property var missionItem
@@ -21,6 +21,38 @@ Rectangle{
 
     ColumnLayout{
         id: _columnlayout
+        RowLayout{
+                Rectangle {
+                    id: delete_button
+                    width: 20
+                    height: 35
+                    color: "#4c596a"
+                    Image{
+                        height: 20
+                        fillMode:   Image.PreserveAspectFit
+                        smooth:     true
+                        source: "/res/TrashDelete.svg"
+        //                visible:                _currentItem && missionItem.sequenceNumber !== 0
+                        visible: true
+                        anchors.left : parent.left
+                        anchors.leftMargin:  2
+                        anchors.centerIn: parent
+
+                        }
+                    MouseArea {
+                         anchors.fill:   parent
+                         onClicked:  remove()
+                     }
+                }
+                Text {
+                    id: waypoint_text
+                    text: "Waypoint"
+                    color: "#acb7ce"
+                    font.pointSize: 10
+                    font.bold: true
+                    }
+            }
+
     RowLayout{
     Rectangle {
         id: land_button
@@ -135,7 +167,7 @@ Rectangle{
             width: 70
             model: { ["None","Takeoff"]}
             onCurrentIndexChanged:{
-                console.log("command name check", missionItem.commandName);
+//                console.log("command name check", missionItem.commandName);
                 if( _obj_index === 0 && currentIndex == 1) {
                     console.log("Takeoff set");
                     missionItem.setCommand(22);//MAV_CMD_NAV_TAKEOFF
@@ -166,8 +198,8 @@ Rectangle{
             width: 70
             model: {["None", "RTH","Land"]}
             onCurrentIndexChanged:{
-                console.log("Index changed combo", currentText);
-                console.log("command name check in rth", missionItem.commandName)
+//                console.log("Index changed combo", currentText);
+//                console.log("command name check in rth", missionItem.commandName)
                 if( _obj_index === count -1  ) {
                     if(currentIndex == 1){
                     console.log("RTH set");

@@ -620,7 +620,7 @@ Item {
         ToolStrip {
             id:                 toolStrip
             anchors.margins:    _toolsMargin
-            anchors.right:       parent.right
+            anchors.left:       parent.left
             anchors.top:        parent.top
             z:                  QGroundControl.zOrderWidgets
             maxHeight:          parent.height - toolStrip.y
@@ -1260,6 +1260,23 @@ Item {
             }
         }
     }
+
+//    QGCPipOverlay {
+//        id:                     _pipOverlay
+//        x: 255
+//        y: 50
+////        anchors.right:           parent.right
+////        anchors.bottom:         parent.bottom
+//        anchors.margins:        _toolsMargin
+//        item1IsFullSettingsKey: "MainFlyWindowIsMap"
+//        item1:                  mapControl
+//        item2:                  QGroundControl.videoManager.hasVideo ? videoControl : null
+//        fullZOrder:             _fullItemZorder
+//        pipZOrder:              _pipItemZorder
+//        show:                   !QGroundControl.videoManager.fullScreen &&
+//                                    (videoControl.pipState.state === videoControl.pipState.pipState || mapControl.pipState.state === mapControl.pipState.pipState)
+
+//    }
 }
 
 

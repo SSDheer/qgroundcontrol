@@ -21,13 +21,12 @@ import QGroundControl.Airmap            1.0
 import QGroundControl.Palette           1.0
 
 
-
 Item { id: _root
 
     property int    action
     property var    actionData
     property var    mapIndicator
-    readonly property int   _decimalPlaces:             8
+    readonly property int   _decimalPlaces:     8
     property bool   hideTrigger:        false
     property alias  optionText:         optionCheckBox.text
     property alias  optionChecked:      optionCheckBox.checked
@@ -42,10 +41,18 @@ Item { id: _root
     property  var   _editorMapCenter: _planViewCenter.center
 
     property bool   mission_enableTrigger
+    property bool   arm_check: _activeVehicle ? true : false
+    property bool   disarm_check: true
+    property bool   takeoff_check: true
+    property bool   rth_check: true
+    property bool   land_check: true
+
 
     property var    _activeVehicle:     QGroundControl.multiVehicleManager.activeVehicle
     property bool   _communicationLost: _activeVehicle ? _activeVehicle.vehicleLinkManager.communicationLost : false
     property bool _armed: _activeVehicle ? _activeVehicle.armed : false
+    property bool _flying:              _activeVehicle ? _activeVehicle.flying : false
+
     property bool forceArm: false
     property int defaultComponentId: _activeVehicle? _activeVehicle.defaultComponentId() : 1
 
@@ -103,10 +110,13 @@ Item { id: _root
 
     Column{
         Rectangle{ id: controls
-                width:250; height: 200
+                width:250; height: 160
                 color: "#0c213a"
                 Text {
-                    x: 20; y: 5
+                    anchors.top: parent.top
+                    anchors.left: parent.left
+                    anchors.topMargin: 5
+                    anchors.leftMargin: 20
                     font.bold: true
                     font.pointSize: 12
                     color: "#acb7ce"
@@ -114,47 +124,57 @@ Item { id: _root
                     }
                 Rectangle {
                     id: arm_button
-                    x: 20; y:35
-                    width: 130
+                    width: 90
                     height: 35
-                    color: "#acb7ce"
-                    radius:         4
+                    anchors.top: parent.top
+                    anchors.left: parent.left
+                    anchors.topMargin: 35
+                    anchors.leftMargin: 20
+                    radius: 4
+//                    enabled: true
+                    enabled: arm_check ? true : false
+                    color: arm_button.enabled ? "#acb7ce" : "#4c596a"
+                    MessageDialog{
+                        id:         arm_Dialog
+                        visible:    false
+                        icon:       StandardIcon.Warning
+                        standardButtons: StandardButton.Yes | StandardButton.No
+                        title:      qsTr("Arm Configuration")
+                        text:      qsTr("Is this really what you want?")
+
+                        onYes: {
+                            if(_activeVehicle){
+                                console.log(" vehicle is active")
+                                if (forceArm) {
+                                    mainWindow.forceArmVehicleRequest()
+                                    console.log("forcearm_active")
+                                    if(_activeVehicle.armed){
+                                    arm_check = false }
+                                } else {
+                                    mainWindow.armVehicleRequest()
+                                    console.log("armvehicle");
+                                    if(_activeVehicle.armed){
+                                    arm_check = false }
+                                }
+                            forceArm = false
+                        }
+                            arm_Dialog.visible = false
+                            _root.visible = true
+                        }
+                        onNo: arm_Dialog.visible = false
+                    }
                     MouseArea {
                         onPressAndHold: forceArm = true
                         anchors.fill:   parent
                         onClicked:
-                            {
-                            if(_activeVehicle){
-                            if (_armed) {
-                                console.log("Vehicle is armed!");
-                                mainWindow.disarmVehicleRequest()
-                            } else {
-                                if (forceArm) {
-                                    mainWindow.forceArmVehicleRequest()
-                                } else {
-                                    mainWindow.armVehicleRequest()
-                                    console.log("armvehicle");
-                                }
+                        {
+                            if(enabled){
+                                arm_Dialog.visible = true
                             }
-                            forceArm = false
-                            mainWindow.hideIndicatorPopup()
-
-                            var altitudeChange = 0
-
-                            hideTrigger = false
-                            guidedController.executeAction(_root.action, _root.actionData, altitudeChange, _root.optionChecked)
-                            if (mapIndicator) {
-                                mapIndicator.actionConfirmed()
-                                mapIndicator = undefined
-                            }
-
-
-                        }
-                            _root.visible = true
                         }
                     }
                     Text {
-                        text: "Arm / Disarm"
+                        text: "Arm"
                         color: "#0c213a"
                         anchors.fill:           parent
                         horizontalAlignment:    Text.AlignHCenter
@@ -164,15 +184,98 @@ Item { id: _root
                         }
                      }
                 Rectangle {
-                    id: takeoff_button
-                    anchors.leftMargin: 20
+                    id: disarm_button
+                    width: 90
+                    height: 35
                     anchors.left: arm_button.right
+                    anchors.leftMargin: 20
                     anchors.top: arm_button.top
                     anchors.bottom: arm_button.bottom
+                    enabled: { if(_activeVehicle && _activeVehicle.armed && disarm_check) {
+                                arm_button.enabled ? false : true
+                                }
+                                else {false}
+                            }
+
+                    color: disarm_button.enabled ? "#acb7ce" : "#4c596a"
+                    radius: 4
+                    MessageDialog{
+                        id:         disarm_Dialog
+                        visible:    false
+                        icon:       StandardIcon.Warning
+                        standardButtons: StandardButton.Yes | StandardButton.No
+                        title:      qsTr("Disarm Configuration")
+                        text:      qsTr("Is this really what you want?")
+
+                        onYes: {
+                            if(_activeVehicle){
+//                                disarm_check = false
+                            if (_armed) {
+                                console.log("Vehicle is armed!");
+                                mainWindow.disarmVehicleRequest()
+                                if(!_activeVehicle.armed){
+                                disarm_check = false
+                                arm_check = true}
+                            }
+                        }
+                            disarm_Dialog.visible = false
+                            _root.visible = true
+                        }
+                        onNo: disarm_Dialog.visible = false
+                    }
+                    MouseArea {
+                        onPressAndHold: forceArm = true
+                        anchors.fill: parent
+                        onClicked:
+                            {
+                            if(enabled){
+                                disarm_Dialog.visible = true
+                                }
+                            }
+                    }
+                    Text {
+                        text: " Disarm "
+                        color: "#0c213a"
+                        anchors.fill:           parent
+                        horizontalAlignment:    Text.AlignHCenter
+                        verticalAlignment:      Text.AlignVCenter
+                        font.pointSize: 10
+                        font.bold: true
+                        }
+                     }
+
+                Rectangle {
+                    id: takeoff_button
                     width: 60
                     height: 35
-                    color: "#acb7ce"
-                    radius:         4
+                    anchors.left: parent.left
+                    anchors.leftMargin: 20
+                    anchors.top: arm_button.bottom
+                    anchors.topMargin: 20
+                    enabled: { if(_activeVehicle && _activeVehicle.armed && takeoff_check) {
+                                true
+                                }
+                                else {false}
+                            }
+                    color: takeoff_button.enabled ? "#acb7ce" : "#4c596a"
+                    radius: 4
+                    MessageDialog{
+                        id:         takeoff_Dialog
+                        visible:    false
+                        icon:       StandardIcon.Warning
+                        standardButtons: StandardButton.Yes | StandardButton.No
+                        title:      qsTr("Take Off Configuration")
+                        text:      qsTr("Is this really what you want?")
+
+                        onYes: {
+                            var altitudeChange = 10
+                            guidedController.executeAction(3, _root.actionData, altitudeChange, _root.optionChecked)
+                            takeoff_check = false
+
+                            takeoff_Dialog.visible = false
+                        }
+                        onNo: takeoff_Dialog.visible = false
+                    }
                     Image{
                         height: 20
                         fillMode:   Image.PreserveAspectFit
@@ -183,8 +286,9 @@ Item { id: _root
                     MouseArea {
                         anchors.fill:   parent
                         onClicked: {
-                            var altitudeChange = 10
-                            guidedController.executeAction(3, _root.actionData, altitudeChange, _root.optionChecked)
+                            if(enabled){
+                                takeoff_Dialog.visible = true
+                                }
                         }
                     }
 
@@ -192,22 +296,111 @@ Item { id: _root
 
                     Text {
                         text: "Take Off"
-                        x: 170; y: 55
-                        color: "#acb7ce"
-                        anchors.topMargin: 2
                         anchors.top: takeoff_button.bottom
+                        anchors.topMargin: 2
+                        anchors.left: parent.left
+                        anchors.leftMargin: 20
+                        color: takeoff_button.enabled ? "#acb7ce" : "#4c596a"
                         font.pointSize: 10
                         font.bold: true
                         }
+
                     Rectangle {
-                        id: land_button
-                        x: 170; y: 115
-                        anchors.top: takeoff_button.bottom
-                        anchors.topMargin: 32
+                        id: return_to_home_button
                         width: 60
                         height: 35
-                        radius:         4
-                        color: "#acb7ce"
+                        anchors.left: takeoff_button.right
+                        anchors.leftMargin: 12
+                        anchors.top: takeoff_button.top
+                        anchors.bottom: takeoff_button.bottom
+                        radius: 4
+//                        enabled: true
+                        enabled: { if(_activeVehicle && _activeVehicle.flying && rth_check) {
+                                    true
+                                    }
+                                    else {false}
+                                }
+                        color: return_to_home_button.enabled ? "#acb7ce" : "#4c596a"
+                        Image{
+                            id: returntohome_logo
+                            height: 20
+                            fillMode:   Image.PreserveAspectFit
+                            smooth:     true
+                            source: "qrc:/qmlimages/returntohome.png"
+                            anchors.centerIn: parent
+                            }
+                    ColorOverlay{
+                    anchors.fill: returntohome_logo
+                    source: returntohome_logo
+                    color: "#0c213a" }
+                    MessageDialog{
+                        id:         rth_Dialog
+                        visible:    false
+                        icon:       StandardIcon.Warning
+                        standardButtons: StandardButton.Yes | StandardButton.No
+                        title:      qsTr("RTH Configuration")
+                        text:      qsTr("Is this really what you want?")
+
+                        onYes: {
+                            var altitudeChange = 10
+                            guidedController.executeAction(1, _root.actionData, altitudeChange, _root.optionChecked)
+                            rth_Dialog.visible = false
+                            rth_check = false
+                        }
+                        onNo: rth_Dialog.visible = false
+                    }
+
+                    MouseArea {
+                        anchors.fill:   parent
+                        onClicked: {
+                            if(enabled){
+                                rth_Dialog.visible = true
+                            }
+                        }
+                    }
+                    }
+                    Text {
+                        text: "RTH"
+                        color: return_to_home_button.enabled ? "#acb7ce" : "#4c596a"
+                        anchors.top: return_to_home_button.bottom
+                        anchors.topMargin: 2
+                        anchors.left: takeoff_button.right
+                        anchors.leftMargin: 30
+                        font.pointSize: 10
+                        font.bold: true
+                        }
+
+                    Rectangle {
+                        id: land_button
+                        width: 60
+                        height: 35
+                        anchors.left: return_to_home_button.right
+                        anchors.leftMargin: 12
+                        anchors.top: return_to_home_button.top
+                        anchors.bottom: return_to_home_button.bottom
+                        radius: 4
+                        enabled: { if(_activeVehicle && _activeVehicle.flying && land_check) {
+                                    true
+                                    }
+                                    else {false}
+                                }
+                        color: land_button.enabled ? "#acb7ce" : "#4c596a"
+                        MessageDialog{
+                            id:         land_Dialog
+                            visible:    false
+                            icon:       StandardIcon.Warning
+                            standardButtons: StandardButton.Yes | StandardButton.No
+                            title:      qsTr("Land Configuration")
+                            text:      qsTr("Is this really what you want?")
+
+                            onYes: {
+                                var altitudeChange = 10
+                                guidedController.executeAction(2, _root.actionData, altitudeChange, _root.optionChecked)
+                                land_check = false
+                                land_Dialog.visible = false
+                            }
+                            onNo: land_Dialog.visible = false
+                        }
                         Image{
                             height: 20
                             fillMode:   Image.PreserveAspectFit
@@ -218,107 +411,70 @@ Item { id: _root
                         MouseArea {
                             anchors.fill:   parent
                             onClicked: {
-                                var altitudeChange = 10
-                                guidedController.executeAction(2, _root.actionData, altitudeChange, _root.optionChecked)
+                                if(enabled){
+                                    land_Dialog.visible = true
+                                }
                             }
                         }
                         }
 
                         Text {
                             text: "Land"
-                            x: 180; y: 135
-                            color: "#acb7ce"
-                            anchors.topMargin: 2
+                            color: land_button.enabled ? "#acb7ce" : "#4c596a"
                             anchors.top: land_button.bottom
+                            anchors.topMargin: 2
+                            anchors.left: return_to_home_button.right
+                            anchors.leftMargin: 22
                             font.pointSize: 10
                             font.bold: true
                             }
-                        Rectangle {
-                            id: sethome_button
-                            x: 20; y: 115
-                            anchors.top: takeoff_button.bottom
-                            anchors.topMargin: 32
-                            width: 60
-                            height: 35
-                            radius:         4
-                            color: "#acb7ce"
-                            Image{
-                                id: set_home_logo
-                                height: 20
-                                fillMode:   Image.PreserveAspectFit
-                                smooth:     true
-                                source: "qrc:/qmlimages/home_1.png"
-//                                sourceSize: Qt.size(parent.width, parent.height)
-                                anchors.centerIn: parent
-                                }
-                        ColorOverlay{
-                        anchors.fill: set_home_logo
-                        source: set_home_logo
+//                        Rectangle {
+//                            id: sethome_button
+//                            x: 20; y: 115
+//                            anchors.top: takeoff_button.bottom
+//                            anchors.topMargin: 32
+//                            width: 60
+//                            height: 35
+//                            radius:         4
+//                            color: "#acb7ce"
+//                            Image{
+//                                id: set_home_logo
+//                                height: 20
+//                                fillMode:   Image.PreserveAspectFit
+//                                smooth:     true
+//                                source: "qrc:/qmlimages/home_1.png"
+////                                sourceSize: Qt.size(parent.width, parent.height)
+//                                anchors.centerIn: parent
+//                                }
+//                        ColorOverlay{
+//                        anchors.fill: set_home_logo
+//                        source: set_home_logo
 
-                        color: "#0c213a" }
-                        MouseArea {
-                            anchors.fill:   parent
-                            onClicked: {
-//                                _activeVehicle.sendCommand(179,1,true)
-                                _activeVehicle.sendCommand(defaultComponentId,179,true,1);
-                            }
-                        }
-                        }
-                        Text {
-                            text: "Set Home"
-                            x: 17; y: 135
-                            color: "#acb7ce"
-                            anchors.topMargin: 6
-                            anchors.top: set_home_logo.bottom
-                            font.pointSize: 10
-                            font.bold: true
-                            }
-                        Rectangle {
-                            id: return_to_home_button
-                            x: 90; y: 115
-                            anchors.top: takeoff_button.bottom
-                            anchors.topMargin: 32
-                            width: 60
-                            height: 35
-                            radius:         4
-                            color: "#acb7ce"
-                            Image{
-                                id: returntohome_logo
-                                height: 20
-                                fillMode:   Image.PreserveAspectFit
-                                smooth:     true
-                                source: "qrc:/qmlimages/returntohome.png"
-//                                sourceSize: Qt.size(parent.width, parent.height)
-                                anchors.centerIn: parent
-                                }
-                        ColorOverlay{
-                        anchors.fill: returntohome_logo
-                        source: returntohome_logo
-                        color: "#0c213a" }
-                        MouseArea {
-                            anchors.fill:   parent
-                            onClicked: {
-                                var altitudeChange = 10
-                                guidedController.executeAction(1, _root.actionData, altitudeChange, _root.optionChecked)
-                            }
-                        }
-                        }
-                        Text {
-                            text: "RTH"
-                            x: 110; y: 135
-                            color: "#acb7ce"
-                            anchors.topMargin: 6
-                            anchors.top: returntohome_logo.bottom
-                            font.pointSize: 10
-                            font.bold: true
-                            }
+//                        color: "#0c213a" }
+//                        MouseArea {
+//                            anchors.fill:   parent
+//                            onClicked: {
+////                                _activeVehicle.sendCommand(179,1,true)
+//                                _activeVehicle.sendCommand(defaultComponentId,179,true,1);
+//                            }
+//                        }
+//                        }
+//                        Text {
+//                            text: "Set Home"
+//                            x: 17; y: 135
+//                            color: "#acb7ce"
+//                            anchors.topMargin: 6
+//                            anchors.top: set_home_logo.bottom
+//                            font.pointSize: 10
+//                            font.bold: true
+//                            }
 
         } // Controls Rectangle
         Rectangle{ width:250; height:1
                    color: "white"
         }
         Rectangle{ id: camera_controls
-                    width:250; height: 280
+                    width:250; height: 260
                     color: "#0c213a"
                     Text {
                         x: 20; y: 10
@@ -488,19 +644,18 @@ Item { id: _root
                         }
                         }
 
-                        Rectangle{
+                        QGCButton{
                             id:start_mission
-                            radius:4
                             Layout.fillWidth:   true
 //                            width:110;
                             height:25
-                            color:"#acb7ce"
-                            MouseArea{
-                                anchors.fill: parent
-                                onClicked:{
+                            background: Rectangle {
+                                    color:"#acb7ce"
+                            }
+                            onClicked:{
                              insertTakeItemAfterCurrent()
                                 }
-                            }
+
                             Text {
                                 text: qsTr("Start Mission")
                                 anchors.top: parent.top
@@ -513,13 +668,13 @@ Item { id: _root
                                 }
                             }
 
-                        Rectangle{
+                        QGCButton{
                             id:end_mission
-                            radius:4
                             Layout.fillWidth:   true
                             height:25
-                            color:"#acb7ce"
-                            MouseArea{}
+                            background: Rectangle {
+                                    color:"#acb7ce"
+                            }
                             Text {
                                 text: qsTr("End Mission")
                                 anchors.top: parent.top
@@ -545,29 +700,38 @@ Item { id: _root
                                 font.pointSize: 10
                                 font.bold: true
                             }
+                            background: Rectangle {
+                                    color:"#acb7ce"
+                            }
                             enabled:     !_controllerSyncInProgress
 //                                   visible:     !_controllerOffline && !_controllerSyncInProgress && !uploadCompleteText.visible
                             primary:     _controllerDirty
                             visible:     true
-                            onClicked:   _planMasterController.upload()
-                            PropertyAnimation on opacity {
-                                easing.type:    Easing.OutQuart
-                                from:           0.5
-                                to:             1
-                                loops:          Animation.Infinite
-                                running:        _controllerDirty && !_controllerSyncInProgress
-                                alwaysRunToEnd: true
-                                duration:       2000
-                            }
+                            onClicked:  { _root.visible = true
+                                _planMasterController.upload()
+//                                        _root.visible = true
+                                        }
                         }
 
                         QGCButton {
-                            text:               qsTr("Clear")
+                            Text {
+                                text: qsTr("Clear")
+                                anchors.top: parent.top
+                                anchors.topMargin: 5
+                                anchors.left: parent.left
+                                anchors.leftMargin: 45
+                                color: "#0c213a"
+                                font.pointSize: 10
+                                font.bold: true
+                            }
                             Layout.fillWidth:   true
                             Layout.columnSpan:  2
-//                            enabled:            !_planMasterController.offline && !_planMasterController.syncInProgress
+                            enabled:            !_planMasterController.offline && !_planMasterController.syncInProgress
 //                            visible:            !QGroundControl.corePlugin.options.disableVehicleConnection
                             visible:            true
+                            background: Rectangle {
+                                    color:"#acb7ce"
+                            }
                             onClicked: {
 //                                dropPanel.hide()
                                 mainWindow.showComponentDialog(clearVehicleMissionDialog, text, mainWindow.showDialogDefaultWidth, StandardButton.Yes | StandardButton.Cancel)
@@ -617,5 +781,3 @@ Item { id: _root
                 } // Mission controls - Rectangle
     } //Column
 } //Item
-
-

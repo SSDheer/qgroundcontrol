@@ -351,6 +351,7 @@ ApplicationWindow {
     }
 
     footer: LogReplayStatusBar {
+        id: statusBar
         visible: QGroundControl.settingsManager.flyViewSettings.showLogReplayStatusBar.rawValue
     }
 
@@ -686,28 +687,73 @@ ApplicationWindow {
         }
     }
 
-//    FlyView {
-//        id:             viewbar
-//        anchors.fill:   parent
+    FlyView {
+        id:             viewbar
+        anchors.fill:   parent
+    }
+
+
+//    HCView{
+//        id: viewbar
+//        anchors.fill:   parent}
+
+
+//    Rectangle{
+//        id: testLayout
+//        anchors.left: parent.left
+//        width: 300
+//        height: 500
+//        color: "#eeeeee"
 //    }
 
-
-    HCView{
-        id: viewbar
-        anchors.fill:   parent}
-
-
-    PlanView {
-        id:             planView
-        anchors.fill:   parent
-        visible:        false
-    }
-
-    HCSideBar{
-        id:   hcsideBar
+    RowLayout{
+        id: viewContainer
         anchors.fill: parent
-//        anchors.right: parent.right
+        spacing: 0
+
+        HCSideBar{
+            id:   hcsideBar
+            Layout.fillHeight: true
+            Layout.fillWidth: true
+            Layout.minimumWidth: 200
+            Layout.preferredWidth: 250
+            Layout.maximumWidth: 250
+//            anchors.left: parent.left
+//            anchors.top: toolbar.bottom
+//            anchors.bottom: statusBar.top
+//            z : 100
+    //        anchors.right: parent.right
+        }
+
+        PlanView {
+            id:             planView
+            Layout.fillHeight: true
+            Layout.fillWidth: true
+            visible:        false
+        }
+
     }
+
+
+
+
+
+//    QGCPipOverlay {
+//        id:                     _pipOverlay
+//        x: 255
+//        y: 50
+////        anchors.right:           parent.right
+////        anchors.bottom:         parent.bottom
+//        anchors.margins:        _toolsMargin
+//        item1IsFullSettingsKey: "MainFlyWindowIsMap"
+//        item1:                  mapControl
+//        item2:                  QGroundControl.videoManager.hasVideo ? videoControl : null
+//        fullZOrder:             _fullItemZorder
+//        pipZOrder:              _pipItemZorder
+//        show:                   !QGroundControl.videoManager.fullScreen &&
+//                                    (videoControl.pipState.state === videoControl.pipState.pipState || mapControl.pipState.state === mapControl.pipState.pipState)
+
+//    }
 
 
     Rectangle{

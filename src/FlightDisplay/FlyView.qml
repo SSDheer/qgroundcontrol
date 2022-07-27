@@ -150,8 +150,10 @@ Item {
 
     QGCPipOverlay {
         id:                     _pipOverlay
-        anchors.right:           parent.right
-        anchors.bottom:         parent.bottom
+        x: 255
+        y: 50
+//        anchors.right:           parent.right
+//        anchors.bottom:         parent.bottom
         anchors.margins:        _toolsMargin
         item1IsFullSettingsKey: "MainFlyWindowIsMap"
         item1:                  mapControl
