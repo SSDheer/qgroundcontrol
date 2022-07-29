@@ -2972,7 +2972,18 @@ void Vehicle::_handleCommandAck(mavlink_message_t& message)
 
     QString rawCommandName  =_toolbox->missionCommandTree()->rawName(static_cast<MAV_CMD>(ack.command));
     qCDebug(VehicleLog) << QStringLiteral("_handleCommandAck command(%1) result(%2)").arg(rawCommandName).arg(QGCMAVLink::mavResultToString(static_cast<MAV_RESULT>(ack.result)));
+    if (ack.result == MAV_RESULT_ACCEPTED && ack.command == 300){
+        qDebug() << "start mission success..........";
 
+    }
+    if (ack.result == MAV_RESULT_DENIED && ack.command == 183){
+        qDebug() << "zoom denied..........";
+
+    }
+    if (ack.command == MAV_RESULT_FAILED && ack.command == 183){
+        qDebug() << "zoom failed..........";
+
+    }
     if (ack.command == MAV_CMD_DO_SET_ROI_LOCATION) {
         if (ack.result == MAV_RESULT_ACCEPTED) {
             _isROIEnabled = true;

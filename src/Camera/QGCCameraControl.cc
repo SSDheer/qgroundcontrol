@@ -16,6 +16,7 @@
 #include <QStandardPaths>
 #include <QDomDocument>
 #include <QDomNodeList>
+#include <QDebug>
 
 QGC_LOGGING_CATEGORY(CameraControlLog, "CameraControlLog")
 QGC_LOGGING_CATEGORY(CameraControlVerboseLog, "CameraControlVerboseLog")
@@ -550,6 +551,7 @@ QGCCameraControl::setZoomLevel(qreal level)
         //-- Limit
         level = std::min(std::max(level, 0.0), 100.0);
         if(_vehicle) {
+            qDebug() << "zoom range";
             _vehicle->sendMavCommand(
                 _compID,                                // Target component
                 MAV_CMD_SET_CAMERA_ZOOM,                // Command id
@@ -617,6 +619,8 @@ QGCCameraControl::stepZoom(int direction)
 {
     qCDebug(CameraControlLog) << "stepZoom()" << direction;
     if(_vehicle && hasZoom()) {
+        qDebug() << "zoom step";
+
         _vehicle->sendMavCommand(
             _compID,                                // Target component
             MAV_CMD_SET_CAMERA_ZOOM,                // Command id
@@ -632,6 +636,8 @@ QGCCameraControl::startZoom(int direction)
 {
     qCDebug(CameraControlLog) << "startZoom()" << direction;
     if(_vehicle && hasZoom()) {
+        qDebug() << "zoom cont";
+
         _vehicle->sendMavCommand(
             _compID,                                // Target component
             MAV_CMD_SET_CAMERA_ZOOM,                // Command id
@@ -647,6 +653,8 @@ QGCCameraControl::stopZoom()
 {
     qCDebug(CameraControlLog) << "stopZoom()";
     if(_vehicle && hasZoom()) {
+        qDebug() << "zoom stopzoom";
+
         _vehicle->sendMavCommand(
             _compID,                                // Target component
             MAV_CMD_SET_CAMERA_ZOOM,                // Command id

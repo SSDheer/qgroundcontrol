@@ -57,7 +57,8 @@ ColumnLayout {
         }
     }
 
-    TerrainProgress {
-        Layout.fillWidth: true
-    }
+//    TerrainProgress {
+//        Layout.fillWidth: true
+//        anchors.top: compass.bottom
+//    }
 }

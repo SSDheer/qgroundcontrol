@@ -37,6 +37,7 @@ Item {
     property var    parentToolInsets
     property var    totalToolInsets:        _totalToolInsets
     property var    mapControl
+    property var multiVehicleselect: multiVehiclePanelSelector
 
     property var    _activeVehicle:         QGroundControl.multiVehicleManager.activeVehicle
     property var    _planMasterController:  globals.planMasterControllerFlyView
@@ -109,9 +110,9 @@ Item {
     FlyViewInstrumentPanel {
         id:                         instrumentPanel
         anchors.margins:            _toolsMargin
-//        anchors.top:                multiVehiclePanelSelector.visible ? multiVehiclePanelSelector.bottom : parent.top
+        anchors.top:                multiVehiclePanelSelector.visible ? multiVehiclePanelSelector.bottom : parent.top
         anchors.right:              parent.right
-        anchors.bottom:             multiVehiclePanelSelector.visible ? multiVehiclePanelSelector.bottom : parent.bottom
+//        anchors.bottom:             multiVehiclePanelSelector.visible ? multiVehiclePanelSelector.bottom : parent.bottom
         width:                      _rightPanelWidth
         spacing:                    _toolsMargin
         visible:                    QGroundControl.corePlugin.options.flyView.showInstrumentPanel && multiVehiclePanelSelector.showSingleVehiclePanel
@@ -152,6 +153,7 @@ Item {
         id:                 telemetryPanel
         x:                  recalcXPosition()
         anchors.margins:    _toolsMargin
+        visible: true
 
         // States for custom layout support
         states: [
@@ -163,7 +165,7 @@ Item {
                     target: telemetryPanel
                     anchors.top: undefined
                     anchors.bottom: parent.bottom
-                    anchors.left: parent.left
+                    anchors.right: parent.right
                     anchors.verticalCenter: undefined
                 }
 

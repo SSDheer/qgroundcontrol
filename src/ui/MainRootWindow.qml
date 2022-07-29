@@ -85,8 +85,11 @@ ApplicationWindow {
         readonly property real      defaultTextHeight:              ScreenTools.defaultFontPixelHeight
         readonly property real      defaultTextWidth:               ScreenTools.defaultFontPixelWidth
         readonly property var       planMasterControllerFlyView:    flightView.planController
+        readonly property var       widgetlayerFlyView:             flightView.flyViewLayer
         readonly property var       guidedControllerFlyView:        flightView.guidedController
 
+        property var                planvieweditorMap: planView.editorMapPlanview
+        property bool               mission_mode: hcsideBar.mission_enableTrigger
         property var                planMasterControllerPlanView:   null
         property var                currentPlanMissionItem:         planMasterControllerPlanView ? planMasterControllerPlanView.missionController.currentPlanViewItem : null
     }
@@ -167,6 +170,8 @@ ApplicationWindow {
     function showSettingsTool() {
         showTool(qsTr("Application Settings"), "AppSettings.qml", "/res/resources/HCLogoWhite.svg" /*@Team HCROBO {"/res/QGCLogoWhite"}               */)
     }
+
+
 
     function showAdminDialog() {
         showPopupDialogFromComponent(testDialog)
@@ -337,11 +342,14 @@ ApplicationWindow {
 
     //-------------------------------------------------------------------------
     /// Toolbar
-    header: MainToolBar {
-        id:         toolbar
-        height:     ScreenTools.toolbarHeight
-        visible:    !QGroundControl.videoManager.fullScreen
-    }
+//    header: MainToolBar {
+//        id:         toolbar
+//        height:     ScreenTools.toolbarHeight
+//        visible:    !QGroundControl.videoManager.fullScreen
+//    }
+    header: HCToolBar{
+     id: hctoolbar
+     height:  ScreenTools.toolbarHeight*0.75}
 
     footer: LogReplayStatusBar {
         visible: QGroundControl.settingsManager.flyViewSettings.showLogReplayStatusBar.rawValue
@@ -684,23 +692,40 @@ ApplicationWindow {
         anchors.fill:   parent
     }
 
-    PlanView {
-        id:             planView
-        anchors.fill:   parent
-        visible:        false
-    }
-//    HCControls{
-//        id:     hccontrolsView
-//        anchors.fill:  parent
-//        anchors.right: parent.right
-//        anchors.leftMargin: 10
+//    PlanView {
+//        id:             planView
+//        anchors.fill:   parent
+//        visible:        false
+//    }
+    RowLayout{
+        id: viewContainer
+        anchors.fill: parent
+        spacing: 0
 
-//        }
     HCSideBar{
         id:   hcsideBar
+        Layout.fillHeight: true
+        Layout.fillWidth: true
+        Layout.minimumWidth:200
+        Layout.preferredWidth:250
+        Layout.maximumWidth: 250
+    }
 
+
+    HCPlanView {
+        id:     planView
+        Layout.fillHeight: true
+        Layout.fillWidth: true
+        flyViewMap: flightView._mapControl
+        toolInsets: flightView._toolInsets
+//        anchors.right:       parent.right
+//         anchors.top:        parent.top
 
     }
+    }
+
+
+
     property date lastPressedTime: new Date()
     property int pressCounter: 0
 

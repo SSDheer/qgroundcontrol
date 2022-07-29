@@ -90,7 +90,7 @@ Rectangle {
                     setupIndicator:     false
                     exclusiveGroup:     setupButtonGroup
                     text:               modelData.title
-                    visible: !HCLoginModel.isAdvancedUser  && (modelData.title !== "MAVLink Console" || modelData.title !== "MAVLink Inspector" || modelData.title !== "Log Download" || modelData.title !== "Vibration" )
+                    visible: HCLoginModel.isAdvancedUser  && (modelData.title !== "MAVLink Console" || modelData.title !== "MAVLink Inspector" || modelData.title !== "Log Download" || modelData.title !== "Vibration" )
                     onClicked: {
                         panelLoader.source  = modelData.url
                         panelLoader.title   = modelData.title

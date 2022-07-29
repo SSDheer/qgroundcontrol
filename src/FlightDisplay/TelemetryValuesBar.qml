@@ -52,49 +52,49 @@ Rectangle {
                 }
             }
 
-            QGCColoredImage {
-                source:             "/res/layout-right.svg"
-                mipmap:             true
-                width:              ScreenTools.minTouchPixels * 0.75
-                height:             width
-                sourceSize.width:   width
-                color:              qgcPal.text
-                fillMode:           Image.PreserveAspectFit
-                visible:            bottomMode
+//            QGCColoredImage {
+//                source:             "/res/layout-right.svg"
+//                mipmap:             true
+//                width:              ScreenTools.minTouchPixels * 0.75
+//                height:             width
+//                sourceSize.width:   width
+//                color:              qgcPal.text
+//                fillMode:           Image.PreserveAspectFit
+//                visible:            bottomMode
 
-                QGCMouseArea {
-                    fillItem:   parent
-                    onClicked:  bottomMode = false
-                }
-            }
+//                QGCMouseArea {
+//                    fillItem:   parent
+//                    onClicked:  bottomMode = false
+//                }
+//            }
 
-            QGCColoredImage {
-                source:             valueArea.settingsUnlocked ? "/res/LockOpen.svg" : "/res/pencil.svg"
-                mipmap:             true
-                width:              ScreenTools.minTouchPixels * 0.75
-                height:             width
-                sourceSize.width:   width
-                color:              qgcPal.text
-                fillMode:           Image.PreserveAspectFit
+//            QGCColoredImage {
+//                source:             valueArea.settingsUnlocked ? "/res/LockOpen.svg" : "/res/pencil.svg"
+//                mipmap:             true
+//                width:              ScreenTools.minTouchPixels * 0.75
+//                height:             width
+//                sourceSize.width:   width
+//                color:              qgcPal.text
+//                fillMode:           Image.PreserveAspectFit
 
-                QGCMouseArea {
-                    anchors.fill: parent
-                    hoverEnabled: true
-                    cursorShape:  Qt.PointingHandCursor
-                    onClicked:    valueArea.settingsUnlocked = !valueArea.settingsUnlocked
-                }
-            }
+//                QGCMouseArea {
+//                    anchors.fill: parent
+//                    hoverEnabled: true
+//                    cursorShape:  Qt.PointingHandCursor
+//                    onClicked:    valueArea.settingsUnlocked = !valueArea.settingsUnlocked
+//                }
+//            }
         }
 
-        QGCMouseArea {
-            id:                         mouseArea
-            x:                          telemetryLayout.x
-            y:                          telemetryLayout.y
-            width:                      telemetryLayout.width
-            height:                     telemetryLayout.height
-            hoverEnabled:               true
-            propagateComposedEvents:    true
-        }
+//        QGCMouseArea {
+//            id:                         mouseArea
+//            x:                          telemetryLayout.x
+//            y:                          telemetryLayout.y
+//            width:                      telemetryLayout.width
+//            height:                     telemetryLayout.height
+//            hoverEnabled:               true
+//            propagateComposedEvents:    true
+//        }
 
         HorizontalFactValueGrid {
             id:                     valueArea

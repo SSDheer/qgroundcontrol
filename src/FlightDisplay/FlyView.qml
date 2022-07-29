@@ -34,7 +34,10 @@ Item {
 
     // These should only be used by MainRootWindow
     property var planController:    _planController
+//    property var FlyViewLayer:    widgetLayer
+    property var flyViewLayer: widgetLayer.multiVehicleselect
     property var guidedController:  _guidedController
+
 
     PlanMasterController {
         id:                     _planController

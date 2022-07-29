@@ -67,6 +67,7 @@ Item {
                             spacing:        ScreenTools.defaultFontPixelWidth * 0.5
                             anchors.right:  parent.right
                             anchors.left:   parent.left
+
                             QGCButton {
                                 text:       qsTr("Now")
                                 checked:    QGroundControl.airspaceManager.flightPlan.flightStartsNow

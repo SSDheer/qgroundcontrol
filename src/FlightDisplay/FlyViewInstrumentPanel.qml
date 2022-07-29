@@ -26,7 +26,7 @@ Column {
     AirspaceControl {
         id:                 airspaceControl
         width:              parent.width
-        planView:           false
+        planView:           true
         visible:            QGroundControl.airmapSupported ? QGroundControl.settingsManager.airMapSettings.enableAirMap.rawValue : false
     }
 

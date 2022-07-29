@@ -17,6 +17,10 @@ Rectangle {
     id:     _root
     anchors.right: parent.right
 
+    function showappSettingsTool() {
+        showTool(qsTr("Application Settings"), "HCAppSettings.qml", "/res/resources/HCLogoWhite.svg" /*@Team HCROBO {"/res/QGCLogoWhite"}               */)
+    }
+
 //    property int currentToolbar: flyViewToolbar
 
 //    readonly property int flyViewToolbar:   0
@@ -236,7 +240,8 @@ Rectangle {
             anchors.right: disconnectButton.left
             anchors.top: parent.top
 //            color: "#ffb822"
-            onClicked:
+            onClicked:showappSettingsTool()
+
 //                Loader {
 //                id:                 link
 ////                anchors.left:       gps.right
@@ -253,12 +258,12 @@ Rectangle {
 
 
 
-                {
-                if(loaderId.source == "")
-                    loaderId.source = "LinkSettings.qml"
-                else
-                    loaderId.source = ""
-            }
+//                {
+//                if(loaderId.source == "")
+//                    loaderId.source = "LinkSettings.qml"
+//                else
+//                    loaderId.source = ""
+//            }
     }
 
 

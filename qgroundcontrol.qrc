@@ -289,6 +289,8 @@
         <file alias="HCMainRootWindow.qml">src/ui/HCMainRootWindow.qml</file>
         <file alias="QGroundControl/FlightDisplay//HCView.qml">src/FlightDisplay/HCView.qml</file>
         <file alias="QGroundControl/Controls/HCToolBar.qml">src/ui/toolbar/HCToolBar.qml</file>
+        <file alias="HCPlanView.qml">src/PlanView/HCPlanView.qml</file>
+        <file alias="HCAppSettings.qml">src/ui/HCAppSettings.qml</file>
     </qresource>
     <qresource prefix="/FirstRunPromptDialogs">
         <file alias="UnitsFirstRunPrompt.qml">src/FirstRunPromptDialogs/UnitsFirstRunPrompt.qml</file>
@@ -356,5 +358,7 @@
         <file alias="Parameter.MetaData.json.xz">src/comm/MockLink.Parameter.MetaData.json.xz</file>
         <file alias="Parameter.MetaData.json">src/comm/MockLink.Parameter.MetaData.json</file>
     </qresource>
-    <qresource prefix="/"/>
+    <qresource prefix="/">
+        <file>src/ui/HCAppSettings.qml</file>
+    </qresource>
 </RCC>

@@ -36,6 +36,7 @@ public:
     Q_PROPERTY(Fact*            altitude                READ altitude                                           CONSTANT)                           ///< Altitude as specified by altitudeMode. Not necessarily true mission item altitude
     Q_PROPERTY(QGroundControlQmlGlobal::AltMode altitudeMode READ altitudeMode WRITE setAltitudeMode       NOTIFY altitudeModeChanged)
     Q_PROPERTY(Fact*            amslAltAboveTerrain     READ amslAltAboveTerrain                                CONSTANT)                           ///< Actual AMSL altitude for item if altitudeMode == AltitudeAboveTerrain
+    Q_PROPERTY(Fact*           delayFact               READ delay                                              CONSTANT)
     Q_PROPERTY(int              command                 READ command                WRITE setCommand            NOTIFY commandChanged)
     Q_PROPERTY(bool             isLoiterItem            READ isLoiterItem                                       NOTIFY isLoiterItemChanged)
     Q_PROPERTY(bool             showLoiterRadius        READ showLoiterRadius                                   NOTIFY showLoiterRadiusChanged)
@@ -72,6 +73,8 @@ public:
     bool            specifiesAltitude   (void) const;
     QGroundControlQmlGlobal::AltMode altitudeMode(void) const { return _altitudeMode; }
     Fact*           altitude            (void) { return &_altitudeFact; }
+    //HC ROBOTICS
+    Fact*           delay               (void) {return &_delayFact;}
     Fact*           amslAltAboveTerrain (void) { return &_amslAltAboveTerrainFact; }
     bool            isLoiterItem        (void) const;
     bool            showLoiterRadius    (void) const;
@@ -156,6 +159,8 @@ private slots:
     void _sendFriendlyEditAllowedChanged        (void);
     void _altitudeChanged                       (void);
     void _altitudeModeChanged                   (void);
+    //HC ROBOTICS
+    void _delayChanged                          (void);
     void _terrainAltChanged                     (void);
     void _updateLastSequenceNumber              (void);
     void _rebuildFacts                          (void);
@@ -189,6 +194,8 @@ private:
     QGroundControlQmlGlobal::AltMode    _altitudeMode = QGroundControlQmlGlobal::AltitudeModeRelative;
     Fact                                _altitudeFact;
     Fact                                _amslAltAboveTerrainFact;
+    // HC ROBOTICS
+    Fact                                _delayFact;
 
     QmlObjectListModel  _textFieldFacts;
     QmlObjectListModel  _nanFacts;
