@@ -605,179 +605,217 @@ Item { id: _root
             visible:                false
         }
         Rectangle{ id: mission_controls
-                    width: 250; height: 600
-                    color: "#0c213a"
+            width: 250; height: 600
+            color: "#0c213a"
+            Text {
+                    anchors.top: parent.top
+                    anchors.topMargin: 5
+                    anchors.left:parent.left
+                    anchors.leftMargin: 15
+                    font.bold: true
+                    font.pointSize: 12
+                    color: "#acb7ce"
+                    text: "Mission Controls"
+            }
+            ColumnLayout{
+                id: mission_options
+                anchors.top: parent.top
+                anchors.topMargin: 30
+                anchors.left:parent.left
+                anchors.leftMargin: 15
+                RowLayout{
+                    CheckBox{
+                        id: waypoints_start_check
+                        onToggled: {
+                            if(checkState === Qt.Checked){
+                                mission_enableTrigger = true
+                                mainWindow.showPopupDialogFromComponent(preFlightChecklistPopup)
+                                console.log(" checkbox checked true")}
+                            if(checkState === Qt.Unchecked){
+                                mission_enableTrigger = false
+                                console.log(" checkbox Unchecked true")}
+                        }
+                    }
                     Text {
+                        text: qsTr("Mission Mode")
+                        color: "#acb7ce"
+                        font.pointSize: 10
+                        font.bold: true
+                    }
+                }
+                QGCButton{
+                    id:start_mission
+                    Layout.fillWidth:   true
+                    height:25
+//                    color:"#acb7ce"
+                    enabled: waypoint_check ? true : false
+                    background: Rectangle {
+                        color: pause_mission.enabled ? "#acb7ce" : "#4c596a"
+                    }
+                    MouseArea {
+                        anchors.fill:   parent
+                        onClicked: {
+                            var altitudeChange = 10
+                            guidedController.executeAction(12, _root.actionData, altitudeChange, _root.optionChecked)
+                        }
+                    }
+                    Text {
+                        text: qsTr("Start Mission")
                         anchors.top: parent.top
                         anchors.topMargin: 5
-                        anchors.left:parent.left
-                        anchors.leftMargin: 15
+                        anchors.left: parent.left
+                        anchors.leftMargin: 35
+                        color: "#0c213a"
+                        font.pointSize: 10
                         font.bold: true
-                        font.pointSize: 12
-                        color: "#acb7ce"
-                        text: "Mission Controls"
+                    }
+                }
+                QGCButton{
+                    id:resume_mission
+                    Layout.fillWidth:   true
+                    height:25
+                    enabled: waypoint_check ? true : false
+                    background: Rectangle {
+                        color: pause_mission.enabled ? "#acb7ce" : "#4c596a"
+                    }
+                    MouseArea{
+                        anchors.fill:   parent
+                        onClicked: {
+                            globals.guidedControllerFlyView.executeAction(globals.guidedControllerFlyView.actionResumeMission, null, null)
+                            hideDialog()
                         }
-                    ColumnLayout{
-                        id: mission_options
+                    }
+                    Text {
+                        text: qsTr("Resume Mission")
                         anchors.top: parent.top
-                        anchors.topMargin: 30
-                        anchors.left:parent.left
-                        anchors.leftMargin: 15
-                        RowLayout{
-                        CheckBox{
-                            id: waypoints_start_check
-                            onToggled: {
-                                if(checkState === Qt.Checked){
-                                    mission_enableTrigger = true
-                                console.log(" checkbox checked true")}
-                                if(checkState === Qt.Unchecked){
-                                    mission_enableTrigger = false
-                                console.log(" checkbox Unchecked true")}
-                            }
-
+                        anchors.topMargin: 5
+                        anchors.left: parent.left
+                        anchors.leftMargin: 20
+                        color: "#0c213a"
+                        font.pointSize: 10
+                        font.bold: true
+                    }
+                }
+                QGCButton{
+                    id:pause_mission
+                    Layout.fillWidth:   true
+                    height:25
+                    background: Rectangle {
+                        color: pause_mission.enabled ? "#acb7ce" : "#4c596a"
+                    }
+                    enabled: waypoint_check ? true : false
+                    MouseArea{
+                        anchors.fill:   parent
+                        onClicked: {
+                            var altitudeChange = 10
+                            guidedController.executeAction(17, _root.actionData, altitudeChange, _root.optionChecked)
                         }
-                        Text {
-                                text: qsTr("Mission Mode")
-                                color: "#acb7ce"
-                                font.pointSize: 10
-                                font.bold: true
+                    }
+                    Text {
+                        text: qsTr("Pause Mission")
+                        anchors.top: parent.top
+                        anchors.topMargin: 5
+                        anchors.left: parent.left
+                        anchors.leftMargin: 25
+                        color: "#0c213a"
+                        font.pointSize: 10
+                        font.bold: true
+                    }
+                }
+                QGCButton {
+                    id:          uploadButton
+                    Layout.fillWidth:   true
+                    enabled: waypoint_check && !_controllerSyncInProgress
+                    background: Rectangle {
+                        color: pause_mission.enabled ? "#acb7ce" : "#4c596a"
+                    }
+                    Text {
+                        text:        _controllerDirty ? qsTr("Upload Required") : qsTr("Upload")
+                        anchors.top: parent.top
+                        anchors.topMargin: 5
+                        anchors.left: parent.left
+                        anchors.leftMargin: 20
+                        color: "#0c213a"
+                        font.pointSize: 10
+                        font.bold: true
+                    }
+//                    enabled:     !_controllerSyncInProgress
+//                    visible:     !_controllerOffline && !_controllerSyncInProgress && !uploadCompleteText.visible
+                    primary:     _controllerDirty
+                    onClicked:    _planMasterController.upload()
+                    PropertyAnimation on opacity {
+                        easing.type:    Easing.OutQuart
+                        from:           0.5
+                        to:             1
+                        loops:          Animation.Infinite
+                        running:        _controllerDirty && !_controllerSyncInProgress
+                        alwaysRunToEnd: true
+                        duration:       2000
+                    }
+                }
+                QGCButton {
+                    id: clear
+                    Layout.fillWidth:   true
+                    Layout.columnSpan:  2
+                    background: Rectangle {
+                        color: pause_mission.enabled ? "#acb7ce" : "#4c596a"
+                    }
+                    Text {
+                        text: qsTr("Clear")
+                        anchors.top: parent.top
+                        anchors.topMargin: 5
+                        anchors.left: parent.left
+                        anchors.leftMargin: 25
+                        color: "#0c213a"
+                        font.pointSize: 10
+                        font.bold: true
+                    }
+                    enabled:            waypoint_check && !_planMasterController.offline && !_planMasterController.syncInProgress
+                    visible:            !QGroundControl.corePlugin.options.disableVehicleConnection
+                    onClicked: {
+//                        dropPanel.hide()
+                        mainWindow.showComponentDialog(clearVehicleMissionDialog, text, mainWindow.showDialogDefaultWidth, StandardButton.Yes | StandardButton.Cancel)
+                    }
+                }
+                QGCLabel {
+                    id:                     uploadCompleteText
+                    font.pointSize:         ScreenTools.largeFontPointSize
+                    text:                   qsTr("Done")
+                    visible:                false
+                }
+            }
+            Rectangle{
+                id: container_id
+                width: 200; height: 400
+                anchors.top: mission_options.bottom
+                anchors.topMargin: 10
+                anchors.left:parent.left
+                anchors.leftMargin: 15
+                ListView{
+                    id: listview_id
+                    anchors.fill: parent
+                    model:_missionController.visualItems
+                    orientation:ListView.Vertical
+                    clip: true
+                    highlightRangeMode: ListView.StrictlyEnforceRange
+                    spacing:ScreenTools.defaultFontPixelHeight / 4
+                    flickableDirection: Flickable.VerticalFlick
+                    boundsBehavior: Flickable.StopAtBounds
+                    ScrollBar.vertical: ScrollBar {}
+                    delegate: HCControls{
+                        missionItem: object
+                        _obj_index: listview_id.currentIndex
+                        count: listview_id.count
+                        onRemove: {
+                            var removeVIIndex = listview_id.currentIndex
+                            _missionController.removeVisualItem(removeVIIndex)
+                            if (removeVIIndex >= _missionController.visualItems.count) {
+                                removeVIIndex--
+                            }
                         }
-                        }
-
-                        QGCButton{
-                            id:start_mission
-                            Layout.fillWidth:   true
-//                            width:110;
-                            height:25
-                            background: Rectangle {
-                                    color:"#acb7ce"
-                            }
-                            onClicked:{
-                             insertTakeItemAfterCurrent()
-                                }
-
-                            Text {
-                                text: qsTr("Start Mission")
-                                anchors.top: parent.top
-                                anchors.topMargin: 5
-                                anchors.left: parent.left
-                                anchors.leftMargin: 35
-                                color: "#0c213a"
-                                font.pointSize: 10
-                                font.bold: true
-                                }
-                            }
-
-                        QGCButton{
-                            id:end_mission
-                            Layout.fillWidth:   true
-                            height:25
-                            background: Rectangle {
-                                    color:"#acb7ce"
-                            }
-                            Text {
-                                text: qsTr("End Mission")
-                                anchors.top: parent.top
-                                anchors.topMargin: 5
-                                anchors.left: parent.left
-                                anchors.leftMargin: 35
-                                color: "#0c213a"
-                                font.pointSize: 10
-                                font.bold: true
-                                }
-                                }
-                        QGCButton {
-                            id:          uploadButton
-                            //                            anchors.top:text_mission.bottom
-                            Layout.fillWidth:   true
-                            Text {
-                                text:        _controllerDirty ? qsTr("Upload Required") : qsTr("Upload")
-                                anchors.top: parent.top
-                                anchors.topMargin: 5
-                                anchors.left: parent.left
-                                anchors.leftMargin: 25
-                                color: "#0c213a"
-                                font.pointSize: 10
-                                font.bold: true
-                            }
-                            background: Rectangle {
-                                    color:"#acb7ce"
-                            }
-                            enabled:     !_controllerSyncInProgress
-//                                   visible:     !_controllerOffline && !_controllerSyncInProgress && !uploadCompleteText.visible
-                            primary:     _controllerDirty
-                            visible:     true
-                            onClicked:  { _root.visible = true
-                                _planMasterController.upload()
-//                                        _root.visible = true
-                                        }
-                        }
-
-                        QGCButton {
-                            Text {
-                                text: qsTr("Clear")
-                                anchors.top: parent.top
-                                anchors.topMargin: 5
-                                anchors.left: parent.left
-                                anchors.leftMargin: 45
-                                color: "#0c213a"
-                                font.pointSize: 10
-                                font.bold: true
-                            }
-                            Layout.fillWidth:   true
-                            Layout.columnSpan:  2
-                            enabled:            !_planMasterController.offline && !_planMasterController.syncInProgress
-//                            visible:            !QGroundControl.corePlugin.options.disableVehicleConnection
-                            visible:            true
-                            background: Rectangle {
-                                    color:"#acb7ce"
-                            }
-                            onClicked: {
-//                                dropPanel.hide()
-                                mainWindow.showComponentDialog(clearVehicleMissionDialog, text, mainWindow.showDialogDefaultWidth, StandardButton.Yes | StandardButton.Cancel)
-                            }
-                        }
-                        QGCLabel {
-                            id:                     uploadCompleteText
-                            font.pointSize:         ScreenTools.largeFontPointSize
-                            text:                   qsTr("Done")
-                            visible:                false
-                        }
-                    } // Column Layout
-
-                    Rectangle{
-                        id: container_id
-                        width: 200; height: 400
-                        anchors.top: mission_options.bottom
-                        anchors.topMargin: 10
-                        anchors.left:parent.left
-                        anchors.leftMargin: 15
-
-                        ListView{
-                            id: listview_id
-                            anchors.fill: parent
-                            model:_missionController.visualItems
-                            orientation:ListView.Vertical
-                            clip: true
-                             highlightRangeMode: ListView.StrictlyEnforceRange
-                            spacing:ScreenTools.defaultFontPixelHeight / 4
-                            flickableDirection: Flickable.VerticalFlick
-                            boundsBehavior: Flickable.StopAtBounds
-                            ScrollBar.vertical: ScrollBar {}
-                            delegate: HCControls{
-                                missionItem: object
-                                _obj_index: listview_id.currentIndex
-                                count: listview_id.count
-                                onRemove: {
-                                    var removeVIIndex = index
-                                    _missionController.removeVisualItem(removeVIIndex)
-                                    if (removeVIIndex >= _missionController.visualItems.count) {
-                                        removeVIIndex--
-                                    }
-                                }
-                            } // delegate
-                        } // ListView
-                    } // Delegate - Rectangle
-                } // Mission controls - Rectangle
+                    } // delegate
+                } // Listview
+            } // Listview Rectangle
+        }// Mission controls Rectangle
     } //Column
 } //Item

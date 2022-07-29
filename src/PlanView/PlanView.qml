@@ -623,8 +623,8 @@ Item {
             anchors.left:       parent.left
             anchors.top:        parent.top
             z:                  QGroundControl.zOrderWidgets
-            maxHeight:          parent.height - toolStrip.y
-            title:              qsTr("Plan")
+//            maxHeight:          parent.height - toolStrip.y
+//            title:              qsTr("Plan")
 
             readonly property int flyButtonIndex:       0
             readonly property int fileButtonIndex:      1
@@ -646,88 +646,88 @@ Item {
 //                        iconSource:     "/qmlimages/PaperPlane.svg"
 //                        onTriggered:    mainWindow.showFlyView()
 //                    },
-                    ToolStripAction {
-                        text:                   qsTr("File")
-                        enabled:                !_planMasterController.syncInProgress
-                        visible:                true
-                        showAlternateIcon:      _planMasterController.dirty
-                        iconSource:             "/qmlimages/MapSync.svg"
-                        alternateIconSource:    "/qmlimages/MapSyncChanged.svg"
-                        dropPanelComponent:     syncDropPanel
-                    },
-                    ToolStripAction {
-                        text:       qsTr("Takeoff")
-                        iconSource: "/res/takeoff.svg"
-                        enabled:    _missionController.isInsertTakeoffValid
-                        visible:    toolStrip._isMissionLayer && !_planMasterController.controllerVehicle.rover
-                        onTriggered: {
-                            toolStrip.allAddClickBoolsOff()
-                            insertTakeItemAfterCurrent()
-                        }
-                    },
-                    ToolStripAction {
-                        id:                 addWaypointRallyPointAction
-                        text:               _editingLayer == _layerRallyPoints ? qsTr("Rally Point") : qsTr("Waypoint")
-                        iconSource:         "/qmlimages/MapAddMission.svg"
-                        enabled:            toolStrip._isRallyLayer ? true : _missionController.flyThroughCommandsAllowed
-                        visible:            toolStrip._isRallyLayer || toolStrip._isMissionLayer
-                        checkable:          true
-                    },
-                    ToolStripAction {
-                        text:               _missionController.isROIActive ? qsTr("Cancel ROI") : qsTr("ROI")
-                        iconSource:         "/qmlimages/MapAddMission.svg"
-                        enabled:            !_missionController.onlyInsertTakeoffValid
-                        visible:            toolStrip._isMissionLayer && _planMasterController.controllerVehicle.roiModeSupported
-                        checkable:          !_missionController.isROIActive
-                        onCheckedChanged:   _addROIOnClick = checked
-                        onTriggered: {
-                            if (_missionController.isROIActive) {
-                                toolStrip.allAddClickBoolsOff()
-                                insertCancelROIAfterCurrent()
-                            }
-                        }
-                        property bool myAddROIOnClick: _addROIOnClick
-                        onMyAddROIOnClickChanged: checked = _addROIOnClick
-                    },
-                    ToolStripAction {
-                        text:               _singleComplexItem ? _missionController.complexMissionItemNames[0] : qsTr("Pattern")
-                        iconSource:         "/qmlimages/MapDrawShape.svg"
-                        enabled:            _missionController.flyThroughCommandsAllowed
-                        visible:            toolStrip._isMissionLayer
-                        dropPanelComponent: _singleComplexItem ? undefined : patternDropPanel
-                        onTriggered: {
-                            toolStrip.allAddClickBoolsOff()
-                            if (_singleComplexItem) {
-                                insertComplexItemAfterCurrent(_missionController.complexMissionItemNames[0])
-                            }
-                        }
-                    },
-                    ToolStripAction {
-                        text:       _planMasterController.controllerVehicle.multiRotor ? qsTr("Return") : qsTr("Land")
-                        iconSource: "/res/rtl.svg"
-                        enabled:    _missionController.isInsertLandValid
-                        visible:    toolStrip._isMissionLayer
-                        onTriggered: {
-                            toolStrip.allAddClickBoolsOff()
-                            insertLandItemAfterCurrent()
-                        }
-                    },
-                    ToolStripAction {
-                        text:               qsTr("Center")
-                        iconSource:         "/qmlimages/MapCenter.svg"
-                        enabled:            true
-                        visible:            true
-                        dropPanelComponent: centerMapDropPanel
-                    },
-                    ToolStripAction{
-                        text: qsTr("Reboot")
-                        iconSource:       "/qmlimages/restart.svg"
-                        enabled: _missionController.isInsertTakeoffValid
-                        visible: false
-                        onTriggered: {
-                            globals.activeVehicle.rebootVehicle()
-                        }
-                    }
+//                    ToolStripAction {
+//                        text:                   qsTr("File")
+//                        enabled:                !_planMasterController.syncInProgress
+//                        visible:                true
+//                        showAlternateIcon:      _planMasterController.dirty
+//                        iconSource:             "/qmlimages/MapSync.svg"
+//                        alternateIconSource:    "/qmlimages/MapSyncChanged.svg"
+//                        dropPanelComponent:     syncDropPanel
+//                    },
+//                    ToolStripAction {
+//                        text:       qsTr("Takeoff")
+//                        iconSource: "/res/takeoff.svg"
+//                        enabled:    _missionController.isInsertTakeoffValid
+//                        visible:    toolStrip._isMissionLayer && !_planMasterController.controllerVehicle.rover
+//                        onTriggered: {
+//                            toolStrip.allAddClickBoolsOff()
+//                            insertTakeItemAfterCurrent()
+//                        }
+//                    },
+//                    ToolStripAction {
+//                        id:                 addWaypointRallyPointAction
+//                        text:               _editingLayer == _layerRallyPoints ? qsTr("Rally Point") : qsTr("Waypoint")
+//                        iconSource:         "/qmlimages/MapAddMission.svg"
+//                        enabled:            toolStrip._isRallyLayer ? true : _missionController.flyThroughCommandsAllowed
+//                        visible:            toolStrip._isRallyLayer || toolStrip._isMissionLayer
+//                        checkable:          true
+//                    },
+//                    ToolStripAction {
+//                        text:               _missionController.isROIActive ? qsTr("Cancel ROI") : qsTr("ROI")
+//                        iconSource:         "/qmlimages/MapAddMission.svg"
+//                        enabled:            !_missionController.onlyInsertTakeoffValid
+//                        visible:            toolStrip._isMissionLayer && _planMasterController.controllerVehicle.roiModeSupported
+//                        checkable:          !_missionController.isROIActive
+//                        onCheckedChanged:   _addROIOnClick = checked
+//                        onTriggered: {
+//                            if (_missionController.isROIActive) {
+//                                toolStrip.allAddClickBoolsOff()
+//                                insertCancelROIAfterCurrent()
+//                            }
+//                        }
+//                        property bool myAddROIOnClick: _addROIOnClick
+//                        onMyAddROIOnClickChanged: checked = _addROIOnClick
+//                    },
+//                    ToolStripAction {
+//                        text:               _singleComplexItem ? _missionController.complexMissionItemNames[0] : qsTr("Pattern")
+//                        iconSource:         "/qmlimages/MapDrawShape.svg"
+//                        enabled:            _missionController.flyThroughCommandsAllowed
+//                        visible:            toolStrip._isMissionLayer
+//                        dropPanelComponent: _singleComplexItem ? undefined : patternDropPanel
+//                        onTriggered: {
+//                            toolStrip.allAddClickBoolsOff()
+//                            if (_singleComplexItem) {
+//                                insertComplexItemAfterCurrent(_missionController.complexMissionItemNames[0])
+//                            }
+//                        }
+//                    },
+//                    ToolStripAction {
+//                        text:       _planMasterController.controllerVehicle.multiRotor ? qsTr("Return") : qsTr("Land")
+//                        iconSource: "/res/rtl.svg"
+//                        enabled:    _missionController.isInsertLandValid
+//                        visible:    toolStrip._isMissionLayer
+//                        onTriggered: {
+//                            toolStrip.allAddClickBoolsOff()
+//                            insertLandItemAfterCurrent()
+//                        }
+//                    },
+//                    ToolStripAction {
+//                        text:               qsTr("Center")
+//                        iconSource:         "/qmlimages/MapCenter.svg"
+//                        enabled:            true
+//                        visible:            true
+//                        dropPanelComponent: centerMapDropPanel
+//                    },
+//                    ToolStripAction{
+//                        text: qsTr("Reboot")
+//                        iconSource:       "/qmlimages/restart.svg"
+//                        enabled: _missionController.isInsertTakeoffValid
+//                        visible: false
+//                        onTriggered: {
+//                            globals.activeVehicle.rebootVehicle()
+//                        }
+//                    }
 //                    ToolStripAction{
 //                        text: qsTr("checkk!")
 //                        visible: true
@@ -748,16 +748,16 @@ Item {
 
         //-----------------------------------------------------------
         // Right pane for mission editing controls
-        Rectangle {
-            id:                 rightPanel
-            height:             parent.height
-            width:              _rightPanelWidth
-            color:              qgcPal.window
-            opacity:            layerTabBar.visible ? 0.2 : 0
-            anchors.bottom:     parent.bottom
-            anchors.right:      parent.right
-            anchors.rightMargin: _toolsMargin
-        }
+//        Rectangle {
+//            id:                 rightPanel
+//            height:             parent.height
+//            width:              _rightPanelWidth
+//            color:              qgcPal.window
+//            opacity:            layerTabBar.visible ? 0.2 : 0
+//            anchors.bottom:     parent.bottom
+//            anchors.right:      parent.right
+//            anchors.rightMargin: _toolsMargin
+//        }
         //-------------------------------------------------------
         // Right Panel Controls
         Item {
