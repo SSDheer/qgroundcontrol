@@ -68,6 +68,8 @@ Item {
         visible:            !criticalMessageIcon.visible
     }
 
+
+
     MouseArea {
         anchors.fill:   parent
         onClicked:      mainWindow.showIndicatorPopup(_root, vehicleMessagesPopup)
@@ -77,8 +79,8 @@ Item {
         id: vehicleMessagesPopup
 
         Rectangle {
-            width:          mainWindow.width  * 0.666
-            height:         mainWindow.height * 0.666
+            width:          mainWindow.width  * 0.222
+            height:         mainWindow.height * 0.111
             radius:         ScreenTools.defaultFontPixelHeight / 2
             color:          qgcPal.window
             border.color:   qgcPal.text

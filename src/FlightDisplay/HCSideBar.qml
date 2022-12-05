@@ -32,12 +32,16 @@ Item { id: _root
     property alias  optionChecked:      optionCheckBox.checked
     property var    guidedController:  _guidedController
     property var    _guidedController:      globals.guidedControllerFlyView
+    property bool    checklist_mode:       globals.checklist_checked
+    property var checkclose: preFlightChecklistPopup.checklistclose
+
 
     property bool   mission_enableTrigger
     property bool   waypoint_check: waypoints_start_check.checked ? true : false
 
     property bool   arm_check: _activeVehicle ? true : false
     property bool   disarm_check: true
+    property bool   forcearm_check:true
     property bool   takeoff_check: true
     property bool   rth_check: true
     property bool   land_check: true
@@ -46,7 +50,7 @@ Item { id: _root
     property var    _missionController:                 _planMasterController.missionController
     property var    _visualItems:                       _missionController.visualItems
 
-//    property var    _planViewCenter: globals.planvieweditorMap
+    property var    _planViewCenter: globals.planvieweditorMap
 //    property  var   _editorMapCenter: _planViewCenter.center
 
 
@@ -55,7 +59,7 @@ Item { id: _root
     property bool _armed: _activeVehicle ? _activeVehicle.armed : false
     property bool forceArm: false
     property bool _flying:              _activeVehicle ? _activeVehicle.flying : false
-    property int defaultComponentId: _activeVehicle? _activeVehicle.defaultComponentId() : 1
+//    property int defaultComponentId: _activeVehicle? _activeVehicle.defaultComponentId : 1
 
     property bool _emergencyAction: action === guidedController.actionEmergencyStop
 
@@ -81,7 +85,7 @@ Item { id: _root
             function accept() {
                 _planMasterController.removeAllFromVehicle()
                 _missionController.setCurrentPlanViewSeqNum(0, true)
-//                hideDialog()
+                hideDialog()
             }
         }
     }
@@ -89,6 +93,25 @@ Item { id: _root
     Component {
         id: preFlightChecklistPopup
         FlyViewPreFlightChecklistPopup {
+
+        }
+
+    }
+
+    Component {
+        id: rebootVehicleConfirmComponent
+
+        QGCViewDialog {
+            function accept() {
+                hideDialog()
+                _activeVehicle.rebootVehicle()
+            }
+
+            QGCLabel {
+                width:              parent.width
+                wrapMode:           Text.WordWrap
+                text:               qsTr("Select Ok to reboot vehicle.")
+            }
         }
     }
 
@@ -112,7 +135,7 @@ Item { id: _root
                            }
                        Rectangle {
                            id: arm_button
-                           width: 90
+                           width: 60
                            height: 35
                            anchors.top: parent.top
                            anchors.left: parent.left
@@ -139,7 +162,7 @@ Item { id: _root
                                            if(_activeVehicle.armed){
                                            arm_check = false }
                                        } else {
-                                           mainWindow.armVehicleRequest()
+                                           guidedController.executeAction(4, _root.actionData, 0, false);
                                            console.log("armvehicle");
                                            if(_activeVehicle.armed){
                                            arm_check = false }
@@ -171,16 +194,75 @@ Item { id: _root
                                font.bold: true
                                }
                             }
+
                        Rectangle {
-                           id: disarm_button
-                           width: 90
+                           id: forcearm_button
+                           width: 60
                            height: 35
                            anchors.left: arm_button.right
-                           anchors.leftMargin: 20
+                           anchors.leftMargin: 12
                            anchors.top: arm_button.top
                            anchors.bottom: arm_button.bottom
+                           enabled: arm_check ? true : false
+                           color: forcearm_button.enabled ? "#acb7ce" : "#4c596a"
+                           radius: 4
+                           MessageDialog{
+                               id:  forcearm_Dialog
+                               visible: false
+                               icon: StandardIcon.Warning
+                               standardButtons: StandardButton.Yes | StandardButton.No
+                               title:   qsTr("Force Arm Configuration")
+                               text:    qsTr("Is this really what you want?")
+
+                               onYes: {
+                                   if(_activeVehicle){
+                                       if(_armed)
+                                           console.log("forcearm vehicle")
+                                   guidedController.executeAction(24, _root.actionData, 0, false)
+                                    if(!_activeVehicle.armed){
+                                        forcearm_check=false
+                                        arm_check=true
+                                    }
+
+                                   }
+                                    forcearm_Dialog.visible = false
+                                   _root.visible = true
+                               }
+
+                               onNo: forcearm_Dialog.visible = false
+                           }
+                           MouseArea{
+                               anchors.fill: parent
+                               onClicked:
+                                   {
+                                   if(enabled){
+                                       forcearm_Dialog.visible = true
+                                       }
+                                   }
+
+                           }
+                           Text {
+                               text: qsTr(" Force\narm ")
+                               color: "#0c213a"
+                               anchors.fill:           parent
+                               horizontalAlignment:    Text.AlignHCenter
+                               verticalAlignment:      Text.AlignVCenter
+//                               anchors.centerIn:
+                               font.pointSize: 10
+                               font.bold: true
+                                          }
+                       }
+
+                       Rectangle {
+                           id: disarm_button
+                           width: 60
+                           height: 35
+                           anchors.left: forcearm_button.right
+                           anchors.leftMargin: 12
+                           anchors.top: forcearm_button.top
+                           anchors.bottom: forcearm_button.bottom
                            enabled: { if(_activeVehicle && _activeVehicle.armed && disarm_check) {
-                                       arm_button.enabled ? false : true
+                                       arm_button.enabled ? true : false
                                        }
                                        else {false}
                                    }
@@ -200,7 +282,8 @@ Item { id: _root
        //                                disarm_check = false
                                    if (_armed) {
                                        console.log("Vehicle is armed!");
-                                       mainWindow.disarmVehicleRequest()
+//                                       mainWindow.disarmVehicleRequest()
+                                       guidedController.executeAction(5, _root.actionData, 0, false);
                                        if(!_activeVehicle.armed){
                                        disarm_check = false
                                        arm_check = true}
@@ -232,6 +315,10 @@ Item { id: _root
                                }
                             }
 
+
+
+
+
                        Rectangle {
                            id: takeoff_button
                            width: 60
@@ -256,7 +343,7 @@ Item { id: _root
                                text:      qsTr("Is this really what you want?")
 
                                onYes: {
-                                   var altitudeChange = 10
+                                   var altitudeChange = 2
                                    guidedController.executeAction(3, _root.actionData, altitudeChange, _root.optionChecked)
                                    takeoff_check = false
 
@@ -330,7 +417,7 @@ Item { id: _root
                                text:      qsTr("Is this really what you want?")
 
                                onYes: {
-                                   var altitudeChange = 10
+                                   var altitudeChange = 3
                                    guidedController.executeAction(1, _root.actionData, altitudeChange, _root.optionChecked)
                                    rth_Dialog.visible = false
                                    rth_check = false
@@ -382,7 +469,7 @@ Item { id: _root
                                    text:      qsTr("Is this really what you want?")
 
                                    onYes: {
-                                       var altitudeChange = 10
+                                       var altitudeChange = 3
                                        guidedController.executeAction(2, _root.actionData, altitudeChange, _root.optionChecked)
                                        land_check = false
                                        land_Dialog.visible = false
@@ -470,6 +557,7 @@ Item { id: _root
                         color: "#acb7ce"
                         text: qsTr("Camera Controls")
                     }
+
                     Rectangle{ id: gimbal_controls_rect
 //                        x: 20; y:40
                         anchors.top: parent.top
@@ -618,237 +706,674 @@ Item { id: _root
 
 
                     ColumnLayout{
-                              id: mission_options
-                              anchors.top: parent.top
-                              anchors.topMargin: 30
-                              anchors.left:parent.left
-                              anchors.leftMargin: 15
-                              RowLayout{
-                                 CheckBox{
-                                    id: waypoints_start_check
-                                    onToggled: {
-                                        if(checkState === Qt.Checked){
-                                            mission_enableTrigger = true
-                                            mainWindow.showPopupDialogFromComponent(preFlightChecklistPopup)
-                                            console.log(" checkbox checked true")}
-                                        if(checkState === Qt.Unchecked){
-                                            mission_enableTrigger = false
-                                            console.log(" checkbox Unchecked true")}
-                                    }
-                                 }
-                                  Text {
-                                    text: qsTr("Mission Mode")
-                                    color: "#acb7ce"
-                                    font.pointSize: 10
-                                    font.bold: true
-                                         }
-                                }
+                                                 id: mission_options
+                                                 anchors.top: parent.top
+                                                 anchors.topMargin: 30
+                                                 anchors.left:parent.left
+                                                 anchors.leftMargin: 15
+                                                 spacing: 15
+//                                                 width: 90
+//                                                 height: 35
+                                                 RowLayout{
+                                                    CheckBox{
+                                                       id: waypoints_start_check
+                                                       onToggled: {
+                                                           if(checkState === Qt.Checked){
+                                                               mainWindow.showPopupDialogFromComponent(preFlightChecklistPopup)
+                                                               mission_enableTrigger = true
+                                                               console.log(" checkbox checked true")
+                                                           console.log("checklist mode value is:----------",checklist_mode)
+                                                           }
+                                                           if(checkState === Qt.Unchecked){
+                                                               mission_enableTrigger = false
+                                                               console.log(" checkbox Unchecked true")
+                                                           }
+                                                       }
+                                                    }
+                                                     Text {
+                                                       text: qsTr("Mission Mode")
+                                                       color: "#acb7ce"
+                                                       font.pointSize: 10
+                                                       font.bold: true
+                                                            }
+                                                   }
+                                                 RowLayout{
+                                                     spacing: 15
 
-                               QGCButton{
-                                  id:start_mission
-//                                  radius:4
-                                 Layout.fillWidth:   true
-                                 height:25
-//                                 color:"#acb7ce"
-                                 enabled: waypoint_check ? true : false
-                                 background: Rectangle {
-                                 color: pause_mission.enabled ? "#acb7ce" : "#4c596a"
-                                 }
-//                                 color: start_mission.enabled ? "#acb7ce" : "#4c596a"
 
-//                                 MouseArea{
-//                                     anchors.fill: parent
-//                                     onClicked:{
-////                                         /*insertTakeItemAfterCurrent*/()
-//                                         _activeVehicle.sendCommand(defaultComponentId,300,true,1);
+                                                  QGCButton{
+                                                     id:start_mission
+                                                     Layout.preferredWidth: 90
+                                                     Layout.preferredHeight: 35
+//                                                     radius:4
+//                                                    Layout.fillWidth:   true
+//                                                    width: 60
+//                                                    height: 25
+//                                                    anchors.topMargin: 35
+//                                                    anchors.leftMargin: 20
+                   //                                 height:25
+                   //                                 color:"#acb7ce"
 
-//                                     }
-                                 MouseArea {
-                                     anchors.fill:   parent
-                                     onClicked: {
-                                         var altitudeChange = 10
-                                         guidedController.executeAction(12, _root.actionData, altitudeChange, _root.optionChecked)
-                                     }
+                                                    enabled: checkclose /*? true : false*/
+                                                    background: Rectangle {
+                                                    color: pause_mission.enabled ? "#acb7ce" : "#4c596a"
+                                                    }
+                   //                                 color: start_mission.enabled ? "#acb7ce" : "#4c596a"
 
-                                 }
-                                 Text {
-                                     text: qsTr("Start Mission")
-                                     anchors.top: parent.top
-                                     anchors.topMargin: 5
-                                     anchors.left: parent.left
-                                     anchors.leftMargin: 35
-                                     color: "#0c213a"
-                                     font.pointSize: 10
-                                     font.bold: true
-                                 }
-                               }
-                               QGCButton{
-                                   id:resume_mission
-//                                   radius:4
-                                   Layout.fillWidth:   true
-                                   //                            width:110
-                                   height:25
-//                                   color:"#acb7ce"
-//                                   color: resume_mission.enabled ? "#acb7ce" : "#4c596a"
-                                   enabled: waypoint_check ? true : false
-                                   background: Rectangle {
-                                   color: pause_mission.enabled ? "#acb7ce" : "#4c596a"
-                                   }
+                   //                                 MouseArea{
+                   //                                     anchors.fill: parent
+                   //                                     onClicked:{
+                   ////                                         /*insertTakeItemAfterCurrent*/()
+                   //                                         _activeVehicle.sendCommand(defaultComponentId,300,true,1);
 
-                                   MouseArea{
-                                       anchors.fill:   parent
-                                       onClicked: {
-                                           globals.guidedControllerFlyView.executeAction(globals.guidedControllerFlyView.actionResumeMission, null, null)
-                                           hideDialog()
+                   //                                     }
+                                                    MouseArea {
+                                                        anchors.fill:   parent
+                                                        onClicked: {
+                                                            var altitudeChange = 5
+                                                            guidedController.executeAction(12, _root.actionData, altitudeChange, _root.optionChecked)
+                                                        }
+
+                                                    }
+                                                    Text {
+                                                        text: qsTr("Start\nMission")
+                                                        anchors.fill:           parent
+                                                        horizontalAlignment:    Text.AlignHCenter
+                                                        verticalAlignment:      Text.AlignVCenter
+                   //                                     anchors.top: parent.top
+                   //                                     anchors.topMargin: 5
+                   //                                     anchors.left: parent.left
+                   //                                     anchors.leftMargin: 35
+                                                        color: "#0c213a"
+                                                        font.pointSize: 10
+                                                        font.bold: true
+                                                    }
+                                                  }
+                                                  QGCButton{
+                                                      id:resume_mission
+                                                      Layout.preferredWidth: 90
+                                                      Layout.preferredHeight: 35
+//                                                                                         anchors.left: start_mission.right
+//                                                                                         anchors.top: start_mission.top
+//                                                                                         anchors.bottom: start_mission.bottom
+//                                                                                         anchors.leftMargin: 12
+                   //                                   radius:4
+//                                                      Layout.fillWidth:   true
+                                                      //                            width:110
+//                                                      height:25
+                   //                                   color:"#acb7ce"
+                   //                                   color: resume_mission.enabled ? "#acb7ce" : "#4c596a"
+                                                      enabled: waypoint_check ? true : false
+                                                      background: Rectangle {
+                                                      color: pause_mission.enabled ? "#acb7ce" : "#4c596a"
+                                                      }
+
+                                                      MouseArea{
+                                                          anchors.fill:   parent
+                                                          onClicked: {
+                                                              var altitudeChange = 5
+                                                              guidedController.executeaction(14, _root.actionData, altitudeChange, _root.optionChecked)
+                   //                                           globals.guidedControllerFlyView.executeAction(globals.guidedControllerFlyView.actionResumeMission, null, null)
+                                                              hideDialog()
+                                                          }
+
+                                                      }
+                                                      Text {
+                                                          text: qsTr("Resume\nMission")
+                                                                                                 anchors.fill:           parent
+                                                                                                 horizontalAlignment:    Text.AlignHCenter
+                                                                                                 verticalAlignment:      Text.AlignVCenter
+//                                                          anchors.top: parent.top
+//                                                          anchors.topMargin: 5
+//                                                          anchors.left: parent.left
+//                                                          anchors.leftMargin: 20
+                                                          color: "#0c213a"
+                                                          font.pointSize: 10
+                                                          font.bold: true
+                                                      }
+                                                  }
+                                                 }
+                                                 RowLayout{
+                                                     spacing: 15
+
+                                                  QGCButton{
+                                                      id:reboot_vehicle
+                                                      Layout.preferredWidth: 90
+                                                      Layout.preferredHeight: 35
+//                                                                                         anchors.left: parent.left
+//                                                                                         anchors.top: start_mission.bottom
+//                                                                                         anchors.topMargin: 20
+                   //                                   radius:4
+//                                                      Layout.fillWidth:   true
+                                                      //                            width:110
+//                                                      height:25
+                   //                                   color:"#acb7ce"
+                   //                                   color: resume_mission.enabled ? "#acb7ce" : "#4c596a"
+                                                      enabled: waypoint_check ? true : false
+                                                      background: Rectangle {
+                                                      color: pause_mission.enabled ? "#acb7ce" : "#4c596a"
+                                                      }
+                                                      MouseArea{
+                                                          anchors.fill:   parent
+                                                          onClicked: {
+                                                              mainWindow.showComponentDialog(rebootVehicleConfirmComponent, qsTr("Reboot Vehicle"), mainWindow.showDialogDefaultWidth, StandardButton.Cancel | StandardButton.Ok)
+
+                                                             }
+
+                                                      }
+
+                                                      Text {
+                                                          text: qsTr("Reboot\nVehicle")
+                                                                                                 anchors.fill:           parent
+                                                                                                 horizontalAlignment:    Text.AlignHCenter
+                                                                                                 verticalAlignment:      Text.AlignVCenter
+//                                                          anchors.top: parent.top
+//                                                          anchors.topMargin: 5
+//                                                          anchors.left: parent.left
+//                                                          anchors.leftMargin: 20
+                                                          color: "#0c213a"
+                                                          font.pointSize: 10
+                                                          font.bold: true
+                                                      }
+                                                  }
+
+
+                                                  QGCButton{
+                                                      id:pause_mission
+                                                      Layout.preferredWidth: 90
+                                                      Layout.preferredHeight: 35
+//                                                                                         anchors.left: reboot_vehicle.right
+//                                                                                         anchors.leftMargin: 12
+//                                                                                         anchors.top: reboot_vehicle.top
+//                                                                                         anchors.bottom: reboot_vehicle.bottom
+                   //                                   radius:4
+//                                                      Layout.fillWidth:   true
+                                                      //                            width:110
+                   //                                   Material.background:Material.White
+//                                                      height:25
+                                                      background: Rectangle {
+                                                      color: pause_mission.enabled ? "#acb7ce" : "#4c596a"
+                                                      }
+                   //                                   color:"#acb7ce"
+                   //                                   color: pause_mission.enabled ? "#acb7ce" : "#4c596a"
+                                                      enabled: waypoint_check ? true : false
+                                                      MouseArea{
+                                                          anchors.fill:   parent
+                                                          onClicked: {
+                                                              var altitudeChange = 5
+                                                              guidedController.executeAction(17, _root.actionData, altitudeChange, _root.optionChecked)
+                                                          }
+
+                                                      }
+                                                      Text {
+                                                          text: qsTr("Pause\nMission")
+                                                                                                 anchors.fill:           parent
+                                                                                                 horizontalAlignment:    Text.AlignHCenter
+                                                                                                 verticalAlignment:      Text.AlignVCenter
+//                                                          anchors.top: parent.top
+//                                                          anchors.topMargin: 5
+//                                                          anchors.left: parent.left
+//                                                          anchors.leftMargin: 25
+                                                          color: "#0c213a"
+                                                          font.pointSize: 10
+                                                          font.bold: true
+                                                      }
+                                                  }
+                                                 }
+
+                                                 RowLayout{
+                                                     spacing: 15
+
+                                                  QGCButton {
+                                                      id:          uploadButton
+                   //                                   radius:4
+//                                                      Layout.fillWidth:   true
+                                                      Layout.preferredWidth: 90
+                                                      Layout.preferredHeight: 35
+//                                                                                         anchors.left: parent.left
+//                                                                                         anchors.top: reboot_vehicle.bottom
+//                                                                                         anchors.topMargin: 20
+                                                      enabled: waypoint_check && !_controllerSyncInProgress
+                                                      background: Rectangle {
+                                                      color: pause_mission.enabled ? "#acb7ce" : "#4c596a"
+                                                      }
+                                                      //                            width:110
+                   //                                   height:25
+                   //                                   color:"#acb7ce"
+                   //                                   enabled: waypoint_check ? true : false
+
+                                                      //                            anchors.top:text_mission.bottom
+
+                                                      Text {
+                                                          text:        _controllerDirty ? qsTr("Upload\nRequired") : qsTr("Upload")
+//                                                          anchors.top: parent.top
+//                                                          anchors.topMargin: 5
+//                                                          anchors.left: parent.left
+//                                                          anchors.leftMargin: 20
+                                                                                                 anchors.fill:           parent
+                                                                                                 horizontalAlignment:    Text.AlignHCenter
+                                                                                                 verticalAlignment:      Text.AlignVCenter
+                                                          color: "#0c213a"
+                                                          font.pointSize: 10
+                                                          font.bold: true
+                                                      }
+                   //                                   enabled:     !_controllerSyncInProgress
+                   //                                   visible:     !_controllerOffline && !_controllerSyncInProgress && !uploadCompleteText.visible
+                                                      primary:     _controllerDirty
+                   //                                   visible:     true
+                   //                                   MouseArea{
+                   //                                       onClicked:    _planMasterController.upload()
+                   //                                   }
+                                                      onClicked:    _planMasterController.upload()
+                                                      PropertyAnimation on opacity {
+                                                          easing.type:    Easing.OutQuart
+                                                          from:           0.5
+                                                          to:             1
+                                                          loops:          Animation.Infinite
+                                                          running:        _controllerDirty && !_controllerSyncInProgress
+                                                          alwaysRunToEnd: true
+                                                          duration:       2000
+                                                      }
+                                                  }
+
+                                                  QGCButton {
+                                                      id: clear
+                   //                                   text:               qsTr("Clear")
+//                                                      Layout.fillWidth:   true
+                                                      Layout.preferredWidth: 90
+                                                      Layout.preferredHeight: 35
+//                                                                                         anchors.left: uploadButton.right
+//                                                                                         anchors.leftMargin: 12
+//                                                                                         anchors.top: uploadButton.top
+//                                                                                         anchors.bottom: uploadButton.bottom
+                                                      Layout.columnSpan:  2
+                                                      background: Rectangle {
+                                                      color: pause_mission.enabled ? "#acb7ce" : "#4c596a"
+                                                      }
+                                                      Text {
+                                                          text: qsTr("Clear")
+                                                                                                 anchors.fill:           parent
+                                                                                                 horizontalAlignment:    Text.AlignHCenter
+                                                                                                 verticalAlignment:      Text.AlignVCenter
+//                                                          anchors.top: parent.top
+//                                                          anchors.topMargin: 5
+//                                                          anchors.left: parent.left
+//                                                          anchors.leftMargin: 25
+                                                          color: "#0c213a"
+                                                          font.pointSize: 10
+                                                          font.bold: true
+                                                      }
+                                                      enabled:            waypoint_check && !_planMasterController.offline && !_planMasterController.syncInProgress
+                                                      visible:            !QGroundControl.corePlugin.options.disableVehicleConnection
+                   //                                   visible:            true
+                                                      onClicked: {
+                   //                                       dropPanel.hide()
+                                                          mainWindow.showComponentDialog(clearVehicleMissionDialog, text, mainWindow.showDialogDefaultWidth, StandardButton.Yes | StandardButton.Cancel)
+                                                      }
+                                                  }
+                                                 }
+
+
+
+                                                  QGCLabel {
+                                                      id:                     uploadCompleteText
+//                                                      Layout.alignment: Qt.AlignCenter
+//                                                      anchors.left: parent.left
+//                                                      anchors.top: uploadButton.bottom
+//                                                      anchors.topMargin: 10
+                                                      font.pointSize:         ScreenTools.largeFontPointSize
+                                                      text:                   qsTr("Done")
+                                                      visible:                false
+                                                  }
+
                                        }
 
-                                   }
-                                   Text {
-                                       text: qsTr("Resume Mission")
-                                       anchors.top: parent.top
-                                       anchors.topMargin: 5
-                                       anchors.left: parent.left
-                                       anchors.leftMargin: 20
-                                       color: "#0c213a"
-                                       font.pointSize: 10
-                                       font.bold: true
-                                   }
-                               }
-//                               QGCButton {
-//                                   Layout.fillWidth:   true
-//                                   Layout.alignment:   Qt.AlignHCenter
-//                                   text:               qsTr("Resume").arg(globals.guidedControllerFlyView._resumeMissionIndex)
-////                                   visible:            !_activeVehicle.communicationLost && globals.guidedControllerFlyView.showResumeMission
+
+
+//                    ColumnLayout{
+//                              id: mission_options
+//                              anchors.top: parent.top
+//                              anchors.topMargin: 30
+//                              anchors.left:parent.left
+//                              anchors.leftMargin: 15
+//                              RowLayout{
+//                                 CheckBox{
+//                                    id: waypoints_start_check
+//                                    onToggled: {
+//                                        if(checkState === Qt.Checked){
+//                                            mission_enableTrigger = true
+//                                            mainWindow.showPopupDialogFromComponent(preFlightChecklistPopup)
+//                                            console.log(" checkbox checked true")}
+//                                        if(checkState === Qt.Unchecked){
+//                                            mission_enableTrigger = false
+//                                            console.log(" checkbox Unchecked true")}
+//                                    }
+//                                 }
+//                                  Text {
+//                                    text: qsTr("Mission Mode")
+//                                    color: "#acb7ce"
+//                                    font.pointSize: 10
+//                                    font.bold: true
+//                                         }
+//                                }
+
+//                               Rectangle{
+//                                  id:start_mission
+//                                  radius:4
+////                                 Layout.fillWidth:   true
+//                                 width: 90
+//                                 height: 35
+//                                 anchors.topMargin: 35
+//                                 anchors.leftMargin: 20
+////                                 height:25
+////                                 color:"#acb7ce"
+//                                 enabled: waypoint_check ? true : false
+////                                 background: Rectangle {
+//                                 color: pause_mission.enabled ? "#acb7ce" : "#4c596a"
+////                                 }
+////                                 color: start_mission.enabled ? "#acb7ce" : "#4c596a"
+
+////                                 MouseArea{
+////                                     anchors.fill: parent
+////                                     onClicked:{
+//////                                         /*insertTakeItemAfterCurrent*/()
+////                                         _activeVehicle.sendCommand(defaultComponentId,300,true,1);
+
+////                                     }
+//                                 MouseArea {
+//                                     anchors.fill:   parent
+//                                     onClicked: {
+//                                         var altitudeChange = 5
+//                                         guidedController.executeAction(12, _root.actionData, altitudeChange, _root.optionChecked)
+//                                     }
+
+//                                 }
+//                                 Text {
+//                                     text: qsTr("Start\nMission")
+//                                     anchors.fill:           parent
+//                                     horizontalAlignment:    Text.AlignHCenter
+//                                     verticalAlignment:      Text.AlignVCenter
+////                                     anchors.top: parent.top
+////                                     anchors.topMargin: 5
+////                                     anchors.left: parent.left
+////                                     anchors.leftMargin: 35
+//                                     color: "#0c213a"
+//                                     font.pointSize: 10
+//                                     font.bold: true
+//                                 }
+//                               }
+//                               Rectangle{
+//                                   id:resume_mission
+//                                   radius:4
+////                                   Layout.fillWidth:   true
+//                                   //                            width:110
+////                                   height:25
+////                                   color:"#acb7ce"
+////                                   color: resume_mission.enabled ? "#acb7ce" : "#4c596a"
+//                                   width: 90
+//                                   height: 35
+//                                   anchors.left: start_mission.right
+//                                   anchors.top: start_mission.top
+//                                   anchors.bottom: start_mission.bottom
+//                                   anchors.leftMargin: 12
 //                                   enabled: waypoint_check ? true : false
+////                                   background: Rectangle {
+//                                   color: pause_mission.enabled ? "#acb7ce" : "#4c596a"
+////                                   }
 
+//                                   MouseArea{
+//                                       anchors.fill:   parent
+//                                       onClicked: {
+//                                           var altitudeChange = 5
+//                                           guidedController.executeaction(14, _root.actionData, altitudeChange, _root.optionChecked)
+////                                           globals.guidedControllerFlyView.executeAction(globals.guidedControllerFlyView.actionResumeMission, null, null)
+//                                           hideDialog()
+//                                       }
 
-//                                   onClicked: {
-//                                       globals.guidedControllerFlyView.executeAction(globals.guidedControllerFlyView.actionResumeMission, null, null)
-//                                       hideDialog()
+//                                   }
+//                                   Text {
+//                                       text: qsTr("Resume\nMission")
+//                                       anchors.fill:           parent
+//                                       horizontalAlignment:    Text.AlignHCenter
+//                                       verticalAlignment:      Text.AlignVCenter
+////                                       anchors.top: parent.top
+////                                       anchors.topMargin: 5
+////                                       anchors.left: parent.left
+////                                       anchors.leftMargin: 20
+//                                       color: "#0c213a"
+//                                       font.pointSize: 10
+//                                       font.bold: true
 //                                   }
 //                               }
 
-                               QGCButton{
-                                   id:pause_mission
+//                               Rectangle {
+//                                   id:reboot_vehicle
 //                                   radius:4
-                                   Layout.fillWidth:   true
-                                   //                            width:110
-//                                   Material.background:Material.White
-                                   height:25
-                                   background: Rectangle {
-                                   color: pause_mission.enabled ? "#acb7ce" : "#4c596a"
-                                   }
-//                                   color:"#acb7ce"
-//                                   color: pause_mission.enabled ? "#acb7ce" : "#4c596a"
-                                   enabled: waypoint_check ? true : false
-                                   MouseArea{
-                                       anchors.fill:   parent
-                                       onClicked: {
-                                           var altitudeChange = 10
-                                           guidedController.executeAction(17, _root.actionData, altitudeChange, _root.optionChecked)
-                                       }
-
-                                   }
-                                   Text {
-                                       text: qsTr("Pause Mission")
-                                       anchors.top: parent.top
-                                       anchors.topMargin: 5
-                                       anchors.left: parent.left
-                                       anchors.leftMargin: 25
-                                       color: "#0c213a"
-                                       font.pointSize: 10
-                                       font.bold: true
-                                   }
-                               }
-
-                               QGCButton {
-                                   id:          uploadButton
-//                                   radius:4
-                                   Layout.fillWidth:   true
-                                   enabled: waypoint_check && !_controllerSyncInProgress
-                                   background: Rectangle {
-                                   color: pause_mission.enabled ? "#acb7ce" : "#4c596a"
-                                   }
-                                   //                            width:110
-//                                   height:25
-//                                   color:"#acb7ce"
+////                                   Layout.fillWidth:   true
+//                                   //                            width:110
+////                                   height:25
+////                                   color:"#acb7ce"
+////                                   color: resume_mission.enabled ? "#acb7ce" : "#4c596a"
+//                                   width: 90
+//                                   height: 35
+//                                   anchors.left: parent.left
+//                                   anchors.top: start_mission.bottom
+//                                   anchors.topMargin: 20
 //                                   enabled: waypoint_check ? true : false
-
-                                   //                            anchors.top:text_mission.bottom
-
-                                   Text {
-                                       text:        _controllerDirty ? qsTr("Upload Required") : qsTr("Upload")
-                                       anchors.top: parent.top
-                                       anchors.topMargin: 5
-                                       anchors.left: parent.left
-                                       anchors.leftMargin: 20
-                                       color: "#0c213a"
-                                       font.pointSize: 10
-                                       font.bold: true
-                                   }
-//                                   enabled:     !_controllerSyncInProgress
-//                                   visible:     !_controllerOffline && !_controllerSyncInProgress && !uploadCompleteText.visible
-                                   primary:     _controllerDirty
-//                                   visible:     true
+////                                   background: Rectangle {
+//                                   color: pause_mission.enabled ? "#acb7ce" : "#4c596a"
+////                                   }
 //                                   MouseArea{
-//                                       onClicked:    _planMasterController.upload()
+//                                       anchors.fill:   parent
+//                                       onClicked: {
+//                                           mainWindow.showComponentDialog(rebootVehicleConfirmComponent, qsTr("Reboot Vehicle"), mainWindow.showDialogDefaultWidth, StandardButton.Cancel | StandardButton.Ok)
+
+//                                          }
+
 //                                   }
-                                   onClicked:    _planMasterController.upload()
-                                   PropertyAnimation on opacity {
-                                       easing.type:    Easing.OutQuart
-                                       from:           0.5
-                                       to:             1
-                                       loops:          Animation.Infinite
-                                       running:        _controllerDirty && !_controllerSyncInProgress
-                                       alwaysRunToEnd: true
-                                       duration:       2000
-                                   }
-                               }
 
-                               QGCButton {
-                                   id: clear
-//                                   text:               qsTr("Clear")
-                                   Layout.fillWidth:   true
-                                   Layout.columnSpan:  2
-                                   background: Rectangle {
-                                   color: pause_mission.enabled ? "#acb7ce" : "#4c596a"
-                                   }
-                                   Text {
-                                       text: qsTr("Clear")
-                                       anchors.top: parent.top
-                                       anchors.topMargin: 5
-                                       anchors.left: parent.left
-                                       anchors.leftMargin: 25
-                                       color: "#0c213a"
-                                       font.pointSize: 10
-                                       font.bold: true
-                                   }
-                                   enabled:            waypoint_check && !_planMasterController.offline && !_planMasterController.syncInProgress
-                                   visible:            !QGroundControl.corePlugin.options.disableVehicleConnection
-//                                   visible:            true
-                                   onClicked: {
-//                                       dropPanel.hide()
-                                       mainWindow.showComponentDialog(clearVehicleMissionDialog, text, mainWindow.showDialogDefaultWidth, StandardButton.Yes | StandardButton.Cancel)
-                                   }
-                               }
+//                                   Text {
+//                                       text: qsTr("Reboot\nVehicle")
+//                                       anchors.fill:           parent
+//                                       horizontalAlignment:    Text.AlignHCenter
+//                                       verticalAlignment:      Text.AlignVCenter
+////                                       anchors.top: parent.top
+////                                       anchors.top: start_mission.bottom
+////                                       anchors.topMargin: 2
+////                                       anchors.left: parent.left
+////                                       anchors.leftMargin: 20
+//                                       color: "#0c213a"
+//                                       font.pointSize: 10
+//                                       font.bold: true
+//                                   }
+//                               }
+////                               QGCButton {
+////                                   Layout.fillWidth:   true
+////                                   Layout.alignment:   Qt.AlignHCenter
+////                                   text:               qsTr("Resume").arg(globals.guidedControllerFlyView._resumeMissionIndex)
+//////                                   visible:            !_activeVehicle.communicationLost && globals.guidedControllerFlyView.showResumeMission
+////                                   enabled: waypoint_check ? true : false
 
 
+////                                   onClicked: {
+////                                       globals.guidedControllerFlyView.executeAction(globals.guidedControllerFlyView.actionResumeMission, null, null)
+////                                       hideDialog()
+////                                   }
+////                               }
 
-                               QGCLabel {
-                                   id:                     uploadCompleteText
-                                   font.pointSize:         ScreenTools.largeFontPointSize
-                                   text:                   qsTr("Done")
-                                   visible:                false
-                               }
+//                               Rectangle{
+//                                   id:pause_mission
+////                                   radius:4
+////                                   Layout.fillWidth:   true
+//                                   //                            width:110
+////                                   Material.background:Material.White
+//                                   width: 90
+//                                   height: 35
+//                                   anchors.left: reboot_vehicle.right
+//                                   anchors.leftMargin: 12
+//                                   anchors.top: reboot_vehicle.top
+//                                   anchors.bottom: reboot_vehicle.bottom
+//                                   radius: 4
+////                                   height:25
+////                                   background: Rectangle {
+//                                   color: pause_mission.enabled ? "#acb7ce" : "#4c596a"
+////                                   }
+////                                   color:"#acb7ce"
+////                                   color: pause_mission.enabled ? "#acb7ce" : "#4c596a"
+//                                   enabled: waypoint_check ? true : false
+//                                   MouseArea{
+//                                       anchors.fill:   parent
+//                                       onClicked: {
+//                                           var altitudeChange = 5
+//                                           guidedController.executeAction(17, _root.actionData, altitudeChange, _root.optionChecked)
+//                                       }
 
-                    }
+//                                   }
+//                                   Text {
+//                                       text: qsTr("Pause\nMission")
+//                                       anchors.fill:           parent
+//                                       horizontalAlignment:    Text.AlignHCenter
+//                                       verticalAlignment:      Text.AlignVCenter
+////                                       anchors.top: parent.top
+////                                       anchors.topMargin: 2
+////                                       anchors.left: parent.left
+////                                       anchors.leftMargin: 20
+//                                       color: "#0c213a"
+//                                       font.pointSize: 10
+//                                       font.bold: true
+//                                   }
+//                               }
+
+//                               Rectangle {
+//                                   id:          uploadButton
+////                                   radius:4
+////                                   Layout.fillWidth:   true
+//                                   width: 90
+//                                   height: 35
+//                                   anchors.left: parent.left
+//                                   anchors.top: reboot_vehicle.bottom
+//                                   anchors.topMargin: 20
+//                                   radius: 4
+//                                   enabled: waypoint_check && !_controllerSyncInProgress
+////                                   background: Rectangle {
+//                                   color: pause_mission.enabled ? "#acb7ce" : "#4c596a"
+////                                   }
+//                                   //                            width:110
+////                                   height:25
+////                                   color:"#acb7ce"
+////                                   enabled: waypoint_check ? true : false
+
+//                                   //                            anchors.top:text_mission.bottom
+
+//                                   Text {
+//                                       text:        _controllerDirty ? qsTr("Upload\nRequired") : qsTr("Upload")
+//                                       anchors.fill:           parent
+//                                       horizontalAlignment:    Text.AlignHCenter
+//                                       verticalAlignment:      Text.AlignVCenter
+////                                       anchors.top: parent.top
+////                                       anchors.topMargin: 5
+////                                       anchors.left: parent.left
+////                                       anchors.leftMargin: 20
+//                                       color: "#0c213a"
+//                                       font.pointSize: 10
+//                                       font.bold: true
+//                                   }
+////                                   enabled:     !_controllerSyncInProgress
+////                                   visible:     !_controllerOffline && !_controllerSyncInProgress && !uploadCompleteText.visible
+////                                   primary:     _controllerDirty
+////                                   visible:     true
+////                                   MouseArea{
+////                                       onClicked:    _planMasterController.upload()
+////                                   }
+//                                   MouseArea{
+//                                       anchors.fill:   parent
+//                                       onClicked:{
+//                                           _planMasterController.upload() }
+//                                       }
+//                                   PropertyAnimation on opacity {
+//                                       easing.type:    Easing.OutQuart
+//                                       from:           0.5
+//                                       to:             1
+//                                       loops:          Animation.Infinite
+//                                       running:        _controllerDirty && !_controllerSyncInProgress
+//                                       alwaysRunToEnd: true
+//                                       duration:       2000
+//                                   }
+//                               }
+
+//                               QGCButton {
+//                                   id: clear
+//                                   anchors.left: uploadButton.right
+//                                   anchors.leftMargin: 12
+//                                   anchors.top: uploadButton.top
+//                                   anchors.bottom: uploadButton.bottom
+////                                   text:               qsTr("Clear")
+////                                   Layout.fillWidth:   true
+////                                   Layout.columnSpan:  2
+//                                   background: Rectangle {
+//                                       width: 90
+//                                       height: 35
+//                                      radius: 4
+//                                   color: pause_mission.enabled ? "#acb7ce" : "#4c596a"
+//                                   }
+//                                   enabled:            waypoint_check && !_planMasterController.offline && !_planMasterController.syncInProgress
+//                                   visible:            !QGroundControl.corePlugin.options.disableVehicleConnection
+////                                   visible:            true
+////                                   MouseArea{
+////                                       anchors.fill:   parent
+//                                       onClicked:/*{*/
+////                                       dropPanel.hide()
+//                                       mainWindow.showComponentDialog(clearVehicleMissionDialog, text, mainWindow.showDialogDefaultWidth, StandardButton.Yes | StandardButton.Cancel)
+////                                   }
+////                                   }
+//                                   Text {
+//                                       text: qsTr("Clear")
+//                                       anchors.fill:           parent
+//                                       horizontalAlignment:    Text.AlignHCenter
+//                                       verticalAlignment:      Text.AlignVCenter
+//                                       anchors.top: parent.top
+//                                       anchors.topMargin: 2
+//                                       anchors.left: parent.left
+//                                       anchors.leftMargin: 60
+//                                       color: "#0c213a"
+//                                       font.pointSize: 10
+//                                       font.bold: true
+//                                   }
+//                               }
+
+
+
+//                               QGCLabel {
+//                                   id:                     uploadCompleteText
+//                                   font.pointSize:         ScreenTools.largeFontPointSize
+//                                   text:                   qsTr("Done")
+//                                   visible:                false
+//                               }
+
+//                    }
+
+
+
+
+
+
                     Rectangle{
                         id: container_id
-                        width: 200; height: 400
-                        anchors.top: mission_options.bottom
-                        anchors.topMargin: 10
+                        width: 200; height: 230
+//                        anchors.top: mission_options.bottom
+                        anchors.top: parent.top
+                        anchors.topMargin: 260
                         anchors.left:parent.left
                         anchors.leftMargin: 15
+
+//                    Rectangle{
+//                                            id: container_id
+//                                            width: 200; height: 400
+//                                            anchors.top: mission_options.bottom
+//                                            anchors.topMargin: 10
+//                                            anchors.left:parent.left
+//                                            anchors.leftMargin: 15
+
 
 
                         ListView{
@@ -865,7 +1390,8 @@ Item { id: _root
                             delegate: HCControls{
                                 missionItem: object
                                 _obj_index: listview_id.currentIndex
-                                count: listview_id.count
+                                count: _missionController.visualItems.count
+                                itemList: _missionController.visualItems
                                 onRemove: {
                                     var removeVIIndex = listview_id.currentIndex
                                     _missionController.removeVisualItem(removeVIIndex)

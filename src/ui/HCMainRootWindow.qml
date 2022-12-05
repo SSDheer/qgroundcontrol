@@ -32,9 +32,7 @@ ApplicationWindow {
         firstRunPromptManager.nextPrompt()
     }
 
-    HCView{
-        id: viewbar
-        anchors.fill:   parent}
+
 
    HCSideBar{
         id:   hcsideBar

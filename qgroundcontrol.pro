@@ -1507,6 +1507,7 @@ contains (CONFIG, QGC_DISABLE_INSTALLER_SETUP) {
 }
 
 DISTFILES += \
+    src/MissionManager/HcMavCmdInfoCommon.json \
     src/QmlControls/QGroundControl/Specific/qmldir
 
 #

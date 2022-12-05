@@ -27,19 +27,23 @@ FlightMap {
     id:                         _root
     allowGCSLocationCenter:     true
     allowVehicleLocationCenter: !_keepVehicleCentered
-    planView:                   false
+//    planView:                   false
     zoomLevel:                  QGroundControl.flightMapZoom
     center:                     QGroundControl.flightMapPosition
 
     property Item pipState: _pipState
+    property bool dark : globals.windowdark
+
+
     QGCPipState {
         id:         _pipState
         pipOverlay: _pipOverlay
-        isDark:     _isFullWindowItemDark
+        isDark:     dark
     }
 
     property var    rightPanelWidth
-    property var    planMasterController
+//    property var    planMasterController
+    property var    planMasterController:  globals.planMasterControllerFlyView
     property bool   pipMode:                    false   // true: map is shown in a small pip mode
     property var    toolInsets                          // Insets for the center viewport area
 

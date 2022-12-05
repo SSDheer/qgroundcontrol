@@ -29,18 +29,18 @@ Item {
                 manualText:     qsTr("Props mounted and secured?")
             }
 
-            PreFlightBatteryCheck {
-                failurePercent:                 40
-                allowFailurePercentOverride:    false
-            }
+//            PreFlightBatteryCheck {
+//                failurePercent:                 40
+//                allowFailurePercentOverride:    false
+//            }
 
-            PreFlightSensorsHealthCheck {
-            }
+//            PreFlightSensorsHealthCheck {
+//            }
 
-            PreFlightGPSCheck {
-                failureSatCount:        9
-                allowOverrideSatCount:  true
-            }
+//            PreFlightGPSCheck {
+//                failureSatCount:        9
+//                allowOverrideSatCount:  true
+//            }
 
             PreFlightRCCheck {
             }

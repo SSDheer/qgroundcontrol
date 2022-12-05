@@ -25,6 +25,10 @@ Rectangle {
 
     property bool       bottomMode: true
 
+    property var    _guidedAltSlider
+    property var    _guidedController:      globals.guidedControllerFlyView
+
+
     DeadMouseArea { anchors.fill: parent }
 
     ColumnLayout {
@@ -86,15 +90,15 @@ Rectangle {
 //            }
         }
 
-//        QGCMouseArea {
-//            id:                         mouseArea
-//            x:                          telemetryLayout.x
-//            y:                          telemetryLayout.y
-//            width:                      telemetryLayout.width
-//            height:                     telemetryLayout.height
-//            hoverEnabled:               true
-//            propagateComposedEvents:    true
-//        }
+        QGCMouseArea {
+            id:                         mouseArea
+            x:                          telemetryLayout.x
+            y:                          telemetryLayout.y
+            width:                      telemetryLayout.width
+            height:                     telemetryLayout.height
+            hoverEnabled:               true
+            propagateComposedEvents:    true
+        }
 
         HorizontalFactValueGrid {
             id:                     valueArea

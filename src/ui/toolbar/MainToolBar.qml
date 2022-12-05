@@ -50,6 +50,8 @@ Rectangle {
     Rectangle {
         anchors.fill:   viewButtonRow
         visible:        currentToolbar === flyViewToolbar
+        color: "white"
+
 
         gradient: Gradient {
             orientation: Gradient.Horizontal
@@ -80,9 +82,12 @@ Rectangle {
             anchors.bottom: parent.bottom
             anchors.top : parent.top
             height: parent.height
+            Layout.preferredWidth: 100
+            Layout.preferredHeight: 22
+            anchors.leftMargin: 5
             Layout.alignment: Qt.AlignHCenter | Qt.AlignTop
             id:                     currentButton
-            Layout.preferredHeight: viewButtonRow.height
+//            Layout.preferredHeight: viewButtonRow.height
             source:            "/res/full_logo"   //@Team HCROBO {"/res/QGCLogoFull"}
             fillMode: Image.PreserveAspectFit
             //logo:                   true
@@ -123,9 +128,9 @@ Rectangle {
                 anchors.right:      parent.right
                 anchors.top:        parent.top
                 anchors.bottom:     parent.bottom
-                source:             currentToolbar === flyViewToolbar ?
-                                        "qrc:/toolbar/MainToolBarIndicators.qml" :
-                                        (currentToolbar == planViewToolbar ? "qrc:/qml/PlanToolBarIndicators.qml" : "")
+                source:            /* currentToolbar === flyViewToolbar ?*/
+                                        "qrc:/toolbar/MainToolBarIndicators.qml" /*:*/
+//                                        (currentToolbar == planViewToolbar ? "qrc:/qml/PlanToolBarIndicators.qml" : "")
             }
     }
 

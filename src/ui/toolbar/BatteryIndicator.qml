@@ -109,7 +109,7 @@ Item {
                 sourceSize.width:   width
                 source:             "/qmlimages/Battery.svg"
                 fillMode:           Image.PreserveAspectFit
-                color:             /* getBatteryColor()*/"#0c213a"
+                color:              /*getBatteryColor()*/ "#0c213a"
             }
 
             Column{
@@ -117,7 +117,7 @@ Item {
                 anchors.top: parent.top
                 anchors.bottom: parent.bottom
                 QGCLabel {
-                    text:                   getBatteryPercentageText()
+//                    text:                   getBatteryPercentageText()
                     font.pointSize:         ScreenTools.mediumFontPointSize
                     color:                  getBatteryColor()
                     anchors.horizontalCenter: parent.horizontalCenter

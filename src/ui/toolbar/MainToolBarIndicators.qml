@@ -25,7 +25,6 @@ Row {
 
     property var  _activeVehicle:           QGroundControl.multiVehicleManager.activeVehicle
     property real _toolIndicatorMargins:    ScreenTools.defaultFontPixelHeight * 0.7
-
     Repeater {
         id:     appRepeater
         model:  QGroundControl.corePlugin.toolBarIndicators
@@ -56,4 +55,35 @@ Row {
             visible:            item.showIndicator
         }
     }
+
+//    function showappSettingsTool() {
+//        showTool(qsTr("Application Settings"), "HCAppSettings.qml", "/res/resources/HCLogoWhite.svg" /*@Team HCROBO {"/res/QGCLogoWhite"}               */)
+//    }
+
+//    QGCButton {
+//        id:                 disconnectButton
+//        text:               qsTr("Disconnect")
+//        anchors.top: parent.top
+//        anchors.bottom: parent.bottom
+//        anchors.right: comportbutton.left
+//        onClicked:         /*indicatorLoader.active = true*/ _activeVehicle.closeVehicle()
+//        visible:       /* true */  /* !_activeVehicle &&*/ _activeVehicle /*&& _communicationLost*/ /*&& currentToolbar === flyViewToolbar*/
+
+
+//       }
+//    Button {
+//            id: comportbutton
+//            text: "COM Port"
+//            spacing: 20
+//            width: 150
+//            anchors.bottom: parent.bottom
+//            anchors.right: parent.right
+//            anchors.top: parent.top
+////            color: "#ffb822"
+//            onClicked:showappSettingsTool()
+//    }
+
+
+
+
 }

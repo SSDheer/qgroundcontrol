@@ -333,7 +333,9 @@ void MissionItem::setSequenceNumber(int sequenceNumber)
 
 void MissionItem::setCommand(MAV_CMD command)
 {
+    qDebug() << "Mission Item Command value :" <<  command;
     if ((MAV_CMD)this->command() != command) {
+        qDebug() << "Mission Item Command value set";
         _commandFact.setRawValue(command);
     }
 }

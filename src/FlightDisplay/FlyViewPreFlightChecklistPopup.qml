@@ -56,9 +56,10 @@ QGCPopupDialog {
 
     Loader {
         id:     checkList
-        source: QGroundControl.corePlugin.options.preFlightChecklistUrl
+        source: "qrc:/qml/PreFlightCheckList.qml" /*QGroundControl.corePlugin.options.preFlightChecklistUrl*/
     }
 
+    property var checklistclose: checkList.allChecksPassed
     property alias checkListItem: checkList.item
 
     Connections {

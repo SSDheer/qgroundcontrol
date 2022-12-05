@@ -37,11 +37,13 @@ Item {
 //    property var FlyViewLayer:    widgetLayer
     property var flyViewLayer: widgetLayer.multiVehicleselect
     property var guidedController:  _guidedController
+    property bool flyViewmultivehicle: widgetLayer.multiVehicleselectsingle
+
 
 
     PlanMasterController {
         id:                     _planController
-        flyView:                true
+        flyView:                 true
         Component.onCompleted:  start()
     }
 
@@ -138,6 +140,7 @@ Item {
         visible:            false
     }
 
+
     FlyViewMap {
         id:                     mapControl
         planMasterController:   _planController
@@ -145,11 +148,12 @@ Item {
         pipMode:                !_mainWindowIsMap
         toolInsets:             customOverlay.totalToolInsets
         mapName:                "FlightDisplayView"
+        visible: false
     }
 
-    FlyViewVideo {
-        id: videoControl
-    }
+//    FlyViewVideo {
+//        id: videoControl
+//    }
 
     QGCPipOverlay {
         id:                     _pipOverlay
@@ -158,11 +162,11 @@ Item {
         anchors.margins:        _toolsMargin
         item1IsFullSettingsKey: "MainFlyWindowIsMap"
         item1:                  mapControl
-        item2:                  QGroundControl.videoManager.hasVideo ? videoControl : null
-        fullZOrder:             _fullItemZorder
-        pipZOrder:              _pipItemZorder
-        show:                   !QGroundControl.videoManager.fullScreen &&
-                                    (videoControl.pipState.state === videoControl.pipState.pipState || mapControl.pipState.state === mapControl.pipState.pipState)
+//        item2:                  QGroundControl.videoManager.hasVideo ? videoControl : null
+//        fullZOrder:             _fullItemZorder
+//        pipZOrder:              _pipItemZorder
+//        show:                   !QGroundControl.videoManager.fullScreen &&
+//                                    (videoControl.pipState.state === videoControl.pipState.pipState || mapControl.pipState.state === mapControl.pipState.pipState)
 
     }
 }

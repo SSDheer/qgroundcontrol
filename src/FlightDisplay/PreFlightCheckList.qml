@@ -42,6 +42,7 @@ ColumnLayout {
             globals.activeVehicle.checkListState = Vehicle.CheckListPassed
         } else {
             globals.activeVehicle.checkListState = Vehicle.CheckListFailed
+
         }
     }
 

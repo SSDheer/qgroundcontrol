@@ -81,7 +81,7 @@ Item {
             sourceSize.height:  height
             source:             "qrc:/qmlimages/signal_1.png"
             fillMode:           Image.PreserveAspectFit
-            opacity:            _rcRSSIAvailable ? 1 : 0.5
+//            opacity:            _rcRSSIAvailable ? 1 : 0.5
             color:              "#0c213a"
         }
 

@@ -28,6 +28,9 @@ Rectangle {
     property real _sliderMaxAlt:        _flyViewSettings ? _flyViewSettings.guidedMaximumAltitude.rawValue : 0
     property real _sliderMinAlt:        _flyViewSettings ? _flyViewSettings.guidedMinimumAltitude.rawValue : 0
     property bool _flying:              _activeVehicle ? _activeVehicle.flying : false
+    property int minimumValue:       _flying ? -1 : 0
+    property int maximumValue:       1
+
 
     function reset() {
         altSlider.value = 0
@@ -103,4 +106,5 @@ Rectangle {
             angle:      180
         }
     }
+
 }

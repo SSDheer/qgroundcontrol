@@ -849,7 +849,9 @@ QString SimpleMissionItem::category(void) const
 
 void SimpleMissionItem::setCommand(int command)
 {
+    qDebug() << "Command value :" << command;
     if (static_cast<MAV_CMD>(command) != _missionItem.command()) {
+        qDebug() << "Command is valid ";
         _missionItem.setCommand(static_cast<MAV_CMD>(command));
         _updateOptionalSections();
     }

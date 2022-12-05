@@ -38,6 +38,9 @@ Item {
     property var    totalToolInsets:        _totalToolInsets
     property var    mapControl
     property var multiVehicleselect: multiVehiclePanelSelector
+    property bool multiVehicleselectsingle: multiVehicleselect.showSingleVehiclePanel
+
+
 
     property var    _activeVehicle:         QGroundControl.multiVehicleManager.activeVehicle
     property var    _planMasterController:  globals.planMasterControllerFlyView

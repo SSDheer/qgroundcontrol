@@ -17,6 +17,8 @@ Canvas {
     anchors.fill: parent
     visible: QGroundControl.settingsManager.flyViewSettings.showObstacleDistanceOverlay.value > 0 && _activeVehicle && _activeVehicle.objectAvoidance.available
 
+    property var    _activeVehicle:             QGroundControl.multiVehicleManager.activeVehicle
+
     property var showText: true
     property var interval: 200
     property var _ranges: []

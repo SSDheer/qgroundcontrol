@@ -123,7 +123,7 @@ void MissionCommandTree::_buildAllCommands(Vehicle* vehicle, QGCMAVLink::Vehicle
             }
         }
     }
-    _supportedCategories[firmwareClass][vehicleClass].append(_allCommandsCategory);
+//    _supportedCategories[firmwareClass][vehicleClass].append(_allCommandsCategory);
 }
 
 QStringList MissionCommandTree::_availableCategoriesForVehicle(Vehicle* vehicle)

@@ -192,7 +192,7 @@ QString FirmwarePlugin::missionCommandOverrides(QGCMAVLink::VehicleClass_t vehic
 {
     switch (vehicleClass) {
     case QGCMAVLink::VehicleClassGeneric:
-        return QStringLiteral(":/json/MavCmdInfoCommon.json");
+        return QStringLiteral(":/json/HcMavCmdInfoCommon.json");
     case QGCMAVLink::VehicleClassFixedWing:
         return QStringLiteral(":/json/MavCmdInfoFixedWing.json");
     case QGCMAVLink::VehicleClassMultiRotor:
@@ -313,11 +313,12 @@ const QVariantList& FirmwarePlugin::toolIndicators(const Vehicle*)
     //-- Default list of indicators for all vehicles.
     if(_toolIndicatorList.size() == 0) {
         _toolIndicatorList = QVariantList({
-            QVariant::fromValue(QUrl::fromUserInput("qrc:/toolbar/MessageIndicator.qml")),
             QVariant::fromValue(QUrl::fromUserInput("qrc:/toolbar/GPSIndicator.qml")),
-            QVariant::fromValue(QUrl::fromUserInput("qrc:/toolbar/TelemetryRSSIIndicator.qml")),
-            QVariant::fromValue(QUrl::fromUserInput("qrc:/toolbar/RCRSSIIndicator.qml")),
+            QVariant::fromValue(QUrl::fromUserInput("qrc:/toolbar/MessageIndicator.qml")),
+//            QVariant::fromValue(QUrl::fromUserInput("qrc:/toolbar/TelemetryRSSIIndicator.qml")),
+//            QVariant::fromValue(QUrl::fromUserInput("qrc:/Controls/FlightModeMenu.qml")),
             QVariant::fromValue(QUrl::fromUserInput("qrc:/toolbar/BatteryIndicator.qml")),
+            QVariant::fromValue(QUrl::fromUserInput("qrc:/toolbar/RCRSSIIndicator.qml")),
         });
     }
     return _toolIndicatorList;

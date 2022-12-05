@@ -287,12 +287,12 @@ Rectangle {
             }
 
             SubMenuButton {
-                setupIndicator:     false
+                setupIndicator:     true
                 exclusiveGroup:     setupButtonGroup
-//                visible:            QGroundControl.multiVehicleManager.parameterReadyVehicleAvailable &&
-//                                    !QGroundControl.multiVehicleManager.activeVehicle.usingHighLatencyLink &&
-//                                    _corePlugin.showAdvancedUI
-                visible : false
+                visible:            QGroundControl.multiVehicleManager.parameterReadyVehicleAvailable &&
+                                    !QGroundControl.multiVehicleManager.activeVehicle.usingHighLatencyLink &&
+                                    _corePlugin.showAdvancedUI
+//                visible : false
                 text:               qsTr("Parameters")
                 Layout.fillWidth:   true
                 onClicked:          showPanel(this, "SetupParameterEditor.qml")

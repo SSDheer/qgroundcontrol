@@ -719,9 +719,9 @@ SetupPage {
                 } // Column - RTL Settings
             }
 
-            Loader {
-                sourceComponent: controller.vehicle.fixedWing ? planeRTL : undefined
-            }
+//            Loader {
+//                sourceComponent: controller.vehicle.fixedWing ? planeRTL : undefined
+//            }
 
             Column {
                 spacing: _margins / 2

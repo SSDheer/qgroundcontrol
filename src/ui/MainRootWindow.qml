@@ -87,8 +87,13 @@ ApplicationWindow {
         readonly property var       planMasterControllerFlyView:    flightView.planController
         readonly property var       widgetlayerFlyView:             flightView.flyViewLayer
         readonly property var       guidedControllerFlyView:        flightView.guidedController
+//        readonly property var       mapcontrolflyview    :          flightView._mapControl
 
-        property var                planvieweditorMap: planView.editorMapPlanview
+        property var                missiondisplay: hctoolbar._commandDialog
+         property bool              flymulti: flightView.flyViewmultivehicle
+        property var                planvieweditorMap: planView._editor
+        property bool                windowdark: flightView._isFullWindowItemDark
+        property bool                checklist_checked: checklist.allChecksPassed
         property bool               mission_mode: hcsideBar.mission_enableTrigger
         property var                planMasterControllerPlanView:   null
         property var                currentPlanMissionItem:         planMasterControllerPlanView ? planMasterControllerPlanView.missionController.currentPlanViewItem : null
@@ -349,7 +354,10 @@ ApplicationWindow {
 //    }
     header: HCToolBar{
      id: hctoolbar
-     height:  ScreenTools.toolbarHeight*0.75}
+//     height:  ScreenTools.toolbarHeight*0.75
+             height:     ScreenTools.toolbarHeight
+
+    }
 
     footer: LogReplayStatusBar {
         visible: QGroundControl.settingsManager.flyViewSettings.showLogReplayStatusBar.rawValue
@@ -686,6 +694,9 @@ ApplicationWindow {
             }
         }
     }
+    PreFlightCheckList{
+        id:checklist
+    }
 
     FlyView {
         id:             flightView
@@ -695,7 +706,7 @@ ApplicationWindow {
 //    PlanView {
 //        id:             planView
 //        anchors.fill:   parent
-//        visible:        false
+//        visible:        true
 //    }
     RowLayout{
         id: viewContainer
@@ -716,13 +727,21 @@ ApplicationWindow {
         id:     planView
         Layout.fillHeight: true
         Layout.fillWidth: true
-        flyViewMap: flightView._mapControl
+//        flyViewMap: flightView._mapControl
         toolInsets: flightView._toolInsets
 //        anchors.right:       parent.right
 //         anchors.top:        parent.top
 
     }
     }
+
+
+
+
+
+
+
+
 
 
 
