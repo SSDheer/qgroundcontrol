@@ -110,16 +110,16 @@ Item {
                         spacing:            ScreenTools.defaultFontPixelHeight
                         visible:            !_activeVehicle.communicationLost && globals.guidedControllerFlyView.showResumeMission
 
-                        QGCButton {
-                            Layout.fillWidth:   true
-                            Layout.alignment:   Qt.AlignHCenter
-                            text:               qsTr("Resume Mission From Waypoint %1").arg(globals.guidedControllerFlyView._resumeMissionIndex)
-
-                            onClicked: {
-                                globals.guidedControllerFlyView.executeAction(globals.guidedControllerFlyView.actionResumeMission, null, null)
-                                hideDialog()
-                            }
-                        }
+//                        QGCButton {
+//                            Layout.fillWidth:   true
+//                            Layout.alignment:   Qt.AlignHCenter
+//                            text:               qsTr("Resume Mission From Waypoint %1").arg(globals.guidedControllerFlyView._resumeMissionIndex)
+//                            visible: false
+//                            onClicked: {
+//                                globals.guidedControllerFlyView.executeAction(globals.guidedControllerFlyView.actionResumeMission, null, null)
+//                                hideDialog()
+//                            }
+//                        }
 
                         QGCLabel {
                             Layout.fillWidth:   true

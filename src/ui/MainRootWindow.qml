@@ -89,6 +89,7 @@ ApplicationWindow {
         readonly property var       guidedControllerFlyView:        flightView.guidedController
 //        readonly property var       mapcontrolflyview    :          flightView._mapControl
 
+        property var planpattern: planView.pattern
         property var                missiondisplay: hctoolbar._commandDialog
          property bool              flymulti: flightView.flyViewmultivehicle
         property var                planvieweditorMap: planView._editor
@@ -719,7 +720,7 @@ ApplicationWindow {
         Layout.fillWidth: true
         Layout.minimumWidth:200
         Layout.preferredWidth:250
-        Layout.maximumWidth: 250
+        Layout.maximumWidth: 280
     }
 
 

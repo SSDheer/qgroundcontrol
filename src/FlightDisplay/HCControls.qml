@@ -14,42 +14,73 @@ import QGroundControl.FactControls  1.0
 import QGroundControl.SettingsManager   1.0
 import QGroundControl.Palette       1.0
 
+//waypoint editor code
+
 Rectangle{
     id: _root_rect
+//    visible:            missionItem.isCurrentItem
     readonly property bool  _waypointsOnlyMode: QGroundControl.corePlugin.options.missionWaypointsOnly
     property var    map                 ///< Map control
     property var missionItem
     property var    masterController
     property var    _missiondisplay : globals.missiondisplay
     property bool   flyThroughCommandsAllowed
+    property var    cameraCalc
+    property bool   _currentItem:               missionItem.isCurrentItem
 
+    property real   _margin:                    ScreenTools.defaultFontPixelWidth / 2
 
 
     signal remove
 
-    width: 200; height:240
+    width: 226; height: 530 /*485*/
     color: "#4c596a"
-    radius: 4
+//    radius: 4
+    radius:         _radius
+//    opacity:        _currentItem ? 1.0 : 0.7
+//    border.width:   _readyForSave ? 0 : 2
+//    border.color:   qgcPal.warningText
     property int _obj_index
     property int count
+    property bool   _readyForSave:              missionItem.readyForSaveState === VisualMissionItem.ReadyForSave
 
     property var itemList
 
+    FocusScope {
+        id:             currentItemScope
+        anchors.fill:   parent
+
+        MouseArea {
+            anchors.fill:   parent
+            onClicked: {
+                currentItemScope.focus = true
+                _root.clicked()
+            }
+        }
+    }
+
+
     ColumnLayout{
         id: _columnlayout
+        anchors.left: parent.left
+        anchors.leftMargin: 5
+
+// delete button(start)
+
         RowLayout{
         Rectangle {
             id: delete_button
             width: 20
             height: 35
             color: "#4c596a"
+
             Image{
                 height: 20
                 fillMode:   Image.PreserveAspectFit
                 smooth:     true
                 source: "/res/TrashDelete.svg"
-//                visible:                _currentItem && missionItem.sequenceNumber !== 0
-                visible: true
+//                visible:        missionItem.sequenceNumber !== 0
+                visible:               true
                 anchors.left : parent.left
                 anchors.leftMargin:  2
                 anchors.centerIn: parent
@@ -68,7 +99,9 @@ Rectangle{
             font.bold: true
             }
     }
+// delete button(end)
 
+// latitude and longitude for each waypoint(start)
 
     RowLayout{
     Rectangle {
@@ -91,7 +124,7 @@ Rectangle{
         text: (missionItem !== null) ? "Lat :" + missionItem.coordinate.latitude : "Lat :"
         color: "#acb7ce"
         font.pointSize: 8
-        font.bold: true
+//        font.bold: true
         }
 
     Text {
@@ -99,70 +132,70 @@ Rectangle{
         text: (missionItem !== null) ? "Long :" + missionItem.coordinate.longitude : "Long :"
         color: "#acb7ce"
         font.pointSize: 8
-        font.bold: true
+//        font.bold: true
         }
     }
     }
+// latitude and longitude for each waypoint(end)
+
+
+//Altitude setting for launch point (start)
+    RowLayout{
+        visible:           missionItem.sequenceNumber === 0
+    Text {
+        id: alt_text3
+        text:  "Alt :"
+        color: "#acb7ce"
+        font.pointSize: 8
+//        font.bold: true
+        }
+
+    FactTextField {
+        fact:               QGroundControl.settingsManager.appSettings.defaultMissionItemAltitude
+        Layout.fillWidth:   true
+    }
+
+
+    }
+//Altitude setting for launch point (end)
+
+
+//Altitude setting for each waypoint(start)
 
     RowLayout{
+        id: wayalt
+        visible:           missionItem.sequenceNumber !== 0
     Text {
         id: alt_text
         text:  "Alt :"
         color: "#acb7ce"
         font.pointSize: 8
-        font.bold: true
+//        font.bold: true
         }
     FactTextField {
         id:                 altField
         Layout.fillWidth:   true
         fact:               missionItem.altitude
+    }
 
-//                    visible:     false
     }
-    }
+//Altitude setting for each waypoint(end)
+
+
+
+
+
+// waypoint command editor(start)
 
     ColumnLayout{
-
-//        RowLayout{
-//            visible: _obj_index === 0
-//        Rectangle {
-//            id: takeof_button
-//            width: 20
-//            height: 35
-//            color: "#4c596a"
-//            Image{
-//                height: 30
-//                fillMode:   Image.PreserveAspectFit
-//                smooth:     true
-//                source: "qrc:/qmlimages/takeoff_1.png"
-//                anchors.centerIn: parent
-//                }
-//        }
-//        ComboBox {
-//            currentIndex: 0
-//            id: takeoff_options
-//            width: 70
-//            model: { ["None","Takeoff"]}
-//            onCurrentIndexChanged:{
-////                console.log("command name check", missionItem.commandName);
-//                if( _obj_index === 0 && currentIndex == 1) {
-//                    console.log("Takeoff set");
-//                    console.log("missionItem",missionItem);
-//                    missionItem.setCommand(22);//MAV_CMD_NAV_TAKEOFF
-
-//                }
-//            }
-//         }
-
-//        }
-
+        anchors.leftMargin: 10
         RowLayout{
-            visible: _obj_index === 1|| _obj_index === count -1
         Rectangle {
             id: rth_button
             width: 20
             height: 35
             color: "#4c596a"
+            visible: true /*_obj_index === 1 || _obj_index === count -1*/
             Image{
                 id: home
                 height: 30
@@ -178,6 +211,7 @@ Rectangle{
                 anchors.leftMargin: 20
                 height:                 50/*ScreenTools.implicitComboBoxHeight*/
                 width:                  innerLayout.width
+                visible:                !commandLabel.visible
 
                 RowLayout {
                     id:                     innerLayout
@@ -205,7 +239,6 @@ Rectangle{
                 }
 
 
-
                 Component {
                     id: commandDialog
 
@@ -220,140 +253,27 @@ Rectangle{
                 }
             }
 
-
-
+            QGCLabel {
+                id:                     commandLabel
+                anchors.verticalCenter: parent.verticalCenter
+                width:                  commandPicker.width
+                height:                 commandPicker.height
+//                visible:                !missionItem.isCurrentItem || !missionItem.isSimpleItem || _waypointsOnlyMode || missionItem.isTakeoffItem
+                visible:                 !missionItem.isSimpleItem
+                verticalAlignment:      Text.AlignVCenter
+                text:                   missionItem.commandName
+                anchors.left: home.right
+                anchors.leftMargin: 20
+//                color:                  _outerTextColor
+            }
         }
-//        QGCViewDialog {
-//            id: root_view
+      }
+    }
+
+// waypoint command editor(end)
 
 
-//            QGCPalette { id: qgcPal }
-
-//            Label {
-//                id:                 categoryLabel
-//                anchors.baseline:   return_options.baseline
-//                text:               qsTr("Category:")
-//            }
-//            Component {
-//                id: commandDialog
-
-//                MissionCommandDialog {
-//                    vehicle:                    masterController.controllerVehicle
-//                    missionItem:                _root.missionItem
-//                    map:                        _root.map
-//                    // FIXME: Disabling fly through commands doesn't work since you may need to change from an RTL to something else
-//                    flyThroughCommandsAllowed:  true //_missionController.flyThroughCommandsAllowed
-//                }
-//            }
-
-
-//        ComboBox {
-//            currentIndex: 0
-//            id: return_options
-//            width: 70
-////            model:  mavCmdInfo.friendlyName
-////            model:              QGroundControl.missionCommandTree.categoriesForVehicle(_planMasterController.controllerVehicle)
-
-////            model: {["None", "RTH","Land"]}
-////            model: QGroundControl.missionCommandTree.getCommandsForCategory(_planMasterController.controllerVehicle, missionItem.category, true);
-////            model:              QGroundControl.missionCommandTree.categoriesForVehicle(_planMasterController.controllerVehicle)
-
-////            function categorySelected(category) {
-//////                commandList.model = QGroundControl.missionCommandTree.getCommandsForCategory(_planMasterController.controllerVehicle, category, true)
-////            }
-
-////            Component.onCompleted: {
-////                var category  = missionItem.category
-////                currentIndex = find(category)
-////                categorySelected(category)
-////            }
-
-////            onActivated: categorySelected(textAt(index))
-
-//         /*   ListView {
-//                id:                 commandList
-////                anchors.margins:    ScreenTools.defaultFontPixelHeight
-////                anchors.left:       parent.left
-////                anchors.right:      parent.right
-////                anchors.top:        return_options.bottom
-////                anchors.bottom:     parent.bottom
-////                spacing:            ScreenTools.defaultFontPixelHeight / 2
-//                orientation:        ListView.Vertical
-//                clip:               true
-
-//                delegate: Rectangle {
-//                    width:  parent.width
-//                    height: commandColumn.height + ScreenTools.defaultFontPixelHeight
-//                    color:  qgcPal.button
-
-//                    property var    mavCmdInfo: modelData
-//                    property color  textColor:  qgcPal.buttonText
-
-//                    Column {
-//                        id:                 commandColumn
-//                        anchors.margins:    ScreenTools.defaultFontPixelWidth
-//                        anchors.left:       parent.left
-//                        anchors.right:      parent.right
-//                        anchors.top:        parent.top
-
-//                        Label {
-//                            text:           mavCmdInfo.friendlyName
-//                            color:          textColor
-//                            font.family:    ScreenTools.demiboldFontFamily
-//                        }
-
-//                        Label {
-//                            anchors.margins:    ScreenTools.defaultFontPixelWidth
-//                            anchors.left:       parent.left
-//                            anchors.right:      parent.right
-//                            text:               mavCmdInfo.description
-//                            wrapMode:           Text.WordWrap
-//                            color:              textColor
-//                        }
-//                    }
-
-//                    MouseArea {
-//                        anchors.fill:   parent
-//                        onClicked: {
-//                            missionItem.setMapCenterHintForCommandChange(map.center)
-//                            missionItem.command = mavCmdInfo.command
-//                            _root_rect.reject()
-//                        }
-//                    }
-//                }
-//            }*/ // QGCListView
-//            onCurrentIndexChanged:{
-//                console.log("Index changed combo", currentText);
-////                console.log("command name check in rth", missionItem.commandName)
-////                console.log("Count value : ", count, " -- " , itemList.count);
-//                if( _obj_index === itemList.count - 1) {
-//                    console.log("Current index value : ", currentIndex);
-//                    if(currentIndex == 1){
-//                    console.log("RTH set");
-//                        console.log("missionItem",missionItem);
-////                    missionCmdModel =
-
-////                    missionItem.command = ;//MAV_CMD_NAV_RTL(20)
-
-
-//                    }
-//                    if(currentIndex == 2){
-//                        console.log("missionItem",missionItem);
-//                         missionItem.setCommand(MAV_CMD_NAV_LAND);//MAV_CMD_NAV_LAND
-////                        guidedController.executeAction(2, _root.actionData, altitudeChange, _root.optionChecked)
-
-//                    }
-//                }else{
-//                    console.log( "Object Index is :" , _obj_index);
-//                }
-//            }
-//         }
-        }
-
-        }
-//   }
-
-
+// delay feature for each waypoint(start)
     RowLayout{
     Rectangle {
         id: delay_button
@@ -377,33 +297,127 @@ Rectangle{
     }
 
 
+    SectionHeader {
+        id:             statsHeader
+        anchors.left:   parent.left
+        anchors.right:  parent.right
+        text:           qsTr("Patterns")
+    }
 
+//pattern altitude and spacing setting(start)
+
+        RowLayout{
+//            visible: /*patterns.checked*/ surveypattern &&  missionItem.sequenceNumber !== 0
+    //    Text {
+    //        id: alt_text1
+    //        text:  "Alt :"
+    //        color: "#acb7ce"
+    //        font.pointSize: 8
+    ////        font.bold: true
+    //        }
+
+        CameraCalcGrid {
+            Layout.fillWidth:               true
+            cameraCalc:                     missionItem.cameraCalc
+            distanceToSurfaceLabel:         qsTr("Altitude")
+            sideDistanceLabel:              qsTr("Spacing")
+        }
+
+    }
+
+//pattern altitude and spacing setting(end)
+
+//pattern width
+        RowLayout {
+            QGCLabel { text: qsTr("width   ") }
+            FactTextField {
+                fact:               missionItem.corridorWidth
+                Layout.fillWidth:   true
+            }
+        }
+
+//pattern angle setting
+    QGCLabel { text: qsTr("Angle") }
+    FactTextField {
+        fact:                   missionItem.gridAngle
+        Layout.fillWidth:       true
+        onUpdated:              angleSlider.value = missionItem.gridAngle.value
+    }
+
+    QGCSlider {
+        id:                     angleSlider
+        minimumValue:           0
+        maximumValue:           359
+        stepSize:               1
+        tickmarksEnabled:       false
+        Layout.fillWidth:       true
+        Layout.columnSpan:      2
+        Layout.preferredHeight: ScreenTools.defaultFontPixelHeight * 1.5
+        onValueChanged:         missionItem.gridAngle.value = value
+        Component.onCompleted:  value = missionItem.gridAngle.value
+        updateValueWhileDragging: true
+    }
+
+// distance
+    QGCLabel {
+        text:       qsTr("Turnaround dist")
+        visible:    !forPresets
+    }
+    FactTextField {
+        Layout.fillWidth:   true
+        fact:               missionItem.turnAroundDistance
+        visible:            !forPresets
+    }
+
+//patterns points rotate
 
     RowLayout{
-    Rectangle {
-        id: record_button
-        width: 20
-        height: 35
-        color: "#4c596a"
-        Image{
-            height: 30
-            fillMode:   Image.PreserveAspectFit
-            smooth:     true
-            source: "qrc:/qmlimages/record_1.png"
-            anchors.centerIn: parent
-            }
-//        MouseArea{
-//            anchors.fill:   parent
-//            onClicked: remove()
+        anchors.left:   parent.left
+//        anchors.leftMargin: 5
+        spacing:        _margin
+//        visible: /*patterns.checked*/ surveypattern &&  missionItem.sequenceNumber !== 0
+//        Item {
+//            height: ScreenTools.defaultFontPixelHeight / 2
+//            width:  1
 //        }
-    }
-    ComboBox {
-        id: record_options
-        width: 70
-        model: ["None", "Capture", "Record"]
+        QGCButton{
+           id:rotate
+           Layout.preferredWidth: 110
+           Layout.preferredHeight: 30
+          background: Rectangle {
+           color : "#acb7ce"
+          }
+          MouseArea {
+              anchors.fill:   parent
+              onClicked:missionItem.rotateEntryPoint()
+          }
+          Text {
+              text: qsTr("Rotate")
+              anchors.fill:           parent
+              horizontalAlignment:    Text.AlignHCenter
+              verticalAlignment:      Text.AlignVCenter
+              color: "#0c213a"
+              font.pointSize: 10
+          }
+        }
 
+//    QGCButton {
+//        text:       qsTr("Rotate entry point")
+////        color: "#0c213a"
+//        background: Rectangle {
+//        color : "#acb7ce"
+//        }
+//        onClicked:  missionItem.rotateEntryPoint()
+//    }
     }
-    }
+// delay feature for each waypoint(end)
+
+
+
+
+
+
+
 
   }
 }

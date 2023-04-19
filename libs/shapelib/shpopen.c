@@ -291,7 +291,7 @@
  * Added header.
  *
  */
-
+#define _CRT_SECURE_NO_WARNINGS
 #include "shapefil.h"
 
 #include <math.h>

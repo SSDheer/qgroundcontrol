@@ -31,7 +31,7 @@ Column {
 
     QGCPalette { id: qgcPal; colorGroupEnabled: true }
 
-    Column {
+    /*Column {
         anchors.left:   parent.left
         anchors.right:  parent.right
         spacing:        _margin
@@ -110,7 +110,7 @@ Column {
                 Layout.fillWidth:       true
             }
         }
-    } // Column - Camera spec based ui
+    }*/ // Column - Camera spec based ui
 
     // No camera spec ui
     GridLayout {
@@ -128,11 +128,11 @@ Column {
             Layout.fillWidth:           true
         }
 
-        QGCLabel { text: frontalDistanceLabel }
-        FactTextField {
-            Layout.fillWidth:   true
-            fact:               cameraCalc.adjustedFootprintFrontal
-        }
+//        QGCLabel { text: frontalDistanceLabel }
+//        FactTextField {
+//            Layout.fillWidth:   true
+//            fact:               cameraCalc.adjustedFootprintFrontal
+//        }
 
         QGCLabel { text: sideDistanceLabel }
         FactTextField {

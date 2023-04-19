@@ -23,62 +23,30 @@ Rectangle {
     property var    masterController
     property var    _vehicleInAir:      _activeVehicle ? _activeVehicle.flying || _activeVehicle.landing : false
 
+
+//this function includes application settings feature
+
     function showappSettingsTool() {
         showTool(qsTr("Application Settings"), "HCAppSettings.qml", "/res/resources/HCLogoWhite.svg" /*@Team HCROBO {"/res/QGCLogoWhite"}               */)
     }
 
 
 
-
-
-//    Component {
-//        id: commandDialog
-
-//        MissionCommandDialog {
-//            vehicle:                    masterController.controllerVehicle
-//            missionItem:                _root.missionItem
-//            map:                        _root.map
-//            // FIXME: Disabling fly through commands doesn't work since you may need to change from an RTL to something else
-//            flyThroughCommandsAllowed:  true //_missionController.flyThroughCommandsAllowed
-//        }
-//    }
-
-
-
-
-//    property int currentToolbar: flyViewToolbar
-
-//    readonly property int flyViewToolbar:   0
-//    readonly property int planViewToolbar:  1
-//    readonly property int simpleToolbar:    2
-
     property var    _activeVehicle:     QGroundControl.multiVehicleManager.activeVehicle
     property bool   _communicationLost: _activeVehicle ? _activeVehicle.vehicleLinkManager.communicationLost : false
 
     Rectangle{
-//        anchors.fill: viewButtonRow
-//        visible: currentToolbar === flyViewToolbar
         id:                     viewButtonRow
         anchors.bottomMargin:   1
         anchors.top:            parent.top
         anchors.bottom:         parent.bottom
         anchors.left: parent.left
         anchors.right: parent.right
-//        spacing:                /*20*/ScreenTools.defaultFontPixelWidth/2
         visible: true
         color: "white"
     }
-//    RowLayout {
-////        spacing:30
-//        id:                     viewButtonRow
-//        anchors.bottomMargin:   1
-//        anchors.top:            parent.top
-//        anchors.bottom:         parent.bottom
-//        anchors.left: parent.left
-//        anchors.right: parent.right
-//        spacing:                /*20*/ScreenTools.defaultFontPixelWidth/2
 
-
+//hcrobotics logo
     Image {
         anchors.left:  parent.left
         anchors.bottom: parent.bottom
@@ -101,17 +69,7 @@ Rectangle {
     }
 
 
-//    QGCFlickable {
-//        id:                     toolsFlickable
-//        anchors.leftMargin:     ScreenTools.defaultFontPixelWidth * ScreenTools.largeFontPointRatio * 1.5
-//        anchors.left:           viewButtonRow.right
-//        anchors.bottomMargin:   1
-//        anchors.top:            parent.top
-//        anchors.bottom:         parent.bottom
-//        anchors.right:          parent.right
-//        contentWidth:           indicatorLoader.x + indicatorLoader.width
-//        flickableDirection:     Flickable.HorizontalFlick
-
+//toolbar indicators(battery,gps,message indicator)
             Loader {
                 id:                 indicatorLoader
 //                anchors.left:       parent.left
@@ -131,13 +89,15 @@ Rectangle {
                 visible:                flightModeMenu.visible
             }
 
+//flight modes
+
             FlightModeMenu {
                 id:                     flightModeMenu
                 horizontalAlignment:    Text.AlignHCenter
                 verticalAlignment:      Text.AlignVCenter
                 anchors.left:       currentButton.right
                 anchors.bottomMargin: 15
-                anchors.leftMargin: 20
+                anchors.leftMargin: 30
                 anchors.bottom:     parent.bottom
                 Layout.preferredHeight: _root.height
                 font.pointSize:         _vehicleInAir ?  ScreenTools.largeFontPointSize : ScreenTools.defaultFontPointSize
@@ -147,99 +107,8 @@ Rectangle {
 //    }
 
 
-    /*Row*//*{
-        spacing: 30
-        anchors.left: currentButton.right
-        anchors.centerIn: currentButton.right
-        leftPadding: 30
-          property real _toolIndicatorMargins:    ScreenTools.defaultFontPixelHeight * 0.7
 
-        Text {
-            id:signal
-            rightPadding: 15
-
-
-            Loader {
-                id:                 indicator1
-                anchors.left:       signal.right
-                anchors.top:        parent.top
-                anchors.bottom:     parent.bottom
-                visible: true
-                source:           "qrc:/toolbar/RCRSSIIndicator.qml"
-            }
-        }
-
-
-
-        Text {
-            id: chargebattery
-            leftPadding: 25
-            rightPadding: 15
-
-
-
-            Loader {
-                anchors.left:       chargebattery.right
-                anchors.top:        parent.top
-                anchors.bottom:     parent.bottom
-                visible: true
-                source:           "qrc:/toolbar/BatteryIndicator.qml"
-               }
-            }
-
-
-
-        Text {
-            id: modes
-            leftPadding: 40
-            rightPadding: 15
-
-            Item {
-                Layout.preferredWidth:  ScreenTools.defaultFontPixelWidth / 2
-                height:                 1
-                visible:                flightModeMenu.visible
-            }
-
-            FlightModeMenu {
-                id:                     flightModeMenu
-                anchors.left:       modes.right
-                anchors.bottom:     parent.bottom
-                Layout.preferredHeight: _root.height
-                font.pointSize:         _vehicleInAir ?  ScreenTools.largeFontPointSize : ScreenTools.defaultFontPointSize
-                visible:                _activeVehicle
-                color: "#0c213a"
-            }
-
-
-            }
-
-        Text {
-            id:gps
-            leftPadding: 60
-            rightPadding: 15
-
-
-            Loader {
-                id:                 indicatorLoader
-                anchors.left:       gps.right
-                anchors.top:        parent.top
-                anchors.bottom:     parent.bottom
-                visible: true
-                source:           "qrc:/toolbar/GPSIndicator.qml"
-            }
-             }
-
-        Loader{
-            id: mesindicator
-            anchors.left: indicatorLoader.right
-            anchors.top:parent.top
-            anchors.bottom: parent.bottom
-            source:  "qrc:/toolbar/MessageIndicator.qml"
-        }
-
-    }*/
-
-
+//disconnect Button
         QGCButton {
             id:                 disconnectButton
             text:               qsTr("Disconnect")
@@ -251,6 +120,8 @@ Rectangle {
 
 
            }
+
+//comm port Button
         Button {
                 id: comportbutton
                 text: "COM Port"
@@ -261,11 +132,15 @@ Rectangle {
                 anchors.top: parent.top
     //            color: "#ffb822"
                 onClicked:showappSettingsTool()
-//                QGCMouseArea {
-//                    fillItem:   parent
-//                    onClicked:  mainWindow.showComponentDialog(commandDialog, qsTr("Select Mission Command"), mainWindow.showDialogDefaultWidth, StandardButton.Cancel)
-//                }
 
+
+        }
+        Rectangle {
+            anchors.bottom: parent.bottom
+            height:         _root.height * 0.05
+            width:          _activeVehicle ? _activeVehicle.loadProgress * parent.width : 0
+            color:          qgcPal.colorGreen
+            visible:        true
         }
 
 }

@@ -39,6 +39,7 @@ QGCViewDialog {
         anchors.left:       categoryLabel.right
         anchors.right:      parent.right
         model:              QGroundControl.missionCommandTree.categoriesForVehicle(vehicle)
+        visible: false
 
         function categorySelected(category) {
             commandList.model = QGroundControl.missionCommandTree.getCommandsForCategory(vehicle, category, flyThroughCommandsAllowed)

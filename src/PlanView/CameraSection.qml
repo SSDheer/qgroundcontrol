@@ -114,7 +114,7 @@ Column {
                 Layout.fillWidth:   true
             }
             FactTextField {
-                fact:           _camera.gimbalPitch
+                fact:           _camera.gimbalPitch                
                 implicitWidth:  ScreenTools.defaultFontPixelWidth * 9
                 enabled:        gimbalCheckBox.checked
             }

@@ -24,16 +24,16 @@ ToolStripActionList {
         ToolStripAction {
             text:           qsTr("Plan")
             iconSource:     "/qmlimages/Plan.svg"
-//            onTriggered:    mainWindow.showPlanView()
-            visible: mainWindow.showPlanView()
+            onTriggered:    mainWindow.showPlanView()
+//            visible: mainWindow.showPlanView()
         },
-//        PreFlightCheckListShowAction { onTriggered: displayPreFlightChecklist() },
-//        GuidedActionTakeoff { },
-//        GuidedActionLand { },
+        PreFlightCheckListShowAction { onTriggered: displayPreFlightChecklist() },
+        GuidedActionTakeoff { },
+        GuidedActionLand { },
         
-//        GuidedActionRTL { },
-//        GuidedActionPause { },
-//        GuidedActionActionList { },
+        GuidedActionRTL { },
+        GuidedActionPause { },
+        GuidedActionActionList { },
 
         ToolStripAction{
             text: qsTr("Reboot")

@@ -686,15 +686,15 @@ Item {
                     ToolStripAction {
                         text:               _singleComplexItem ? _missionController.complexMissionItemNames[0] : qsTr("Pattern")
                         iconSource:         "/qmlimages/MapDrawShape.svg"
-                        enabled:            _missionController.flyThroughCommandsAllowed
-                        visible:            toolStrip._isMissionLayer
-                        dropPanelComponent: _singleComplexItem ? undefined : patternDropPanel
-                        onTriggered: {
-                            toolStrip.allAddClickBoolsOff()
-                            if (_singleComplexItem) {
-                                insertComplexItemAfterCurrent(_missionController.complexMissionItemNames[0])
-                            }
-                        }
+                        enabled:           true /*_missionController.flyThroughCommandsAllowed*/
+                        visible:           true /*toolStrip._isMissionLayer*/
+                        dropPanelComponent: /*_singleComplexItem ? undefined :*/ patternDropPanel
+//                        onTriggered: {
+//                            toolStrip.allAddClickBoolsOff()
+//                            if (_singleComplexItem) {
+//                                insertComplexItemAfterCurrent(_missionController.complexMissionItemNames[0])
+//                            }
+//                        }
                     },
                     ToolStripAction {
                         text:       _planMasterController.controllerVehicle.multiRotor ? qsTr("Return") : qsTr("Land")
@@ -948,6 +948,8 @@ Item {
             terrainButtonVisible:   _editingLayer === _layerMission
             terrainButtonChecked:   terrainStatus.visible
             onTerrainButtonClicked: terrainStatus.toggleVisible()
+//            visible: false
+
         }
     }
 
