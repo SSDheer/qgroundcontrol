@@ -31,8 +31,8 @@ Rectangle{
     property bool   _currentItem:               missionItem.isCurrentItem
     readonly property real _radius: ScreenTools.defaultFontPixelHeight * 0.6
     property real   _margin:                    ScreenTools.defaultFontPixelWidth / 2
-    property bool   _showCameraSection:             (_waypointsOnlyMode || QGroundControl.corePlugin.showAdvancedUI) && !_controllerVehicle.apmFirmware
-    property var    _controllerVehicle:             _masterControler.controllerVehicle
+//    property bool   _showCameraSection:             (_waypointsOnlyMode || QGroundControl.corePlugin.showAdvancedUI) && !_controllerVehicle.apmFirmware
+//    property var    _controllerVehicle:             _masterControler.controllerVehicle
     property var    _masterControler:               masterController
     property bool   _simpleMissionStart:            QGroundControl.corePlugin.options.showSimpleMissionStart
     property var    _geoFenceController:                _planMasterController.geoFenceController

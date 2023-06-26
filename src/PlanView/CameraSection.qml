@@ -45,21 +45,21 @@ Column {
             visible : false
         }
 
-        RowLayout {
-            anchors.left:   parent.left
-            anchors.right:  parent.right
-            spacing:        ScreenTools.defaultFontPixelWidth
-            visible:        _camera.cameraAction.rawValue === 1
+//        RowLayout {
+//            anchors.left:   parent.left
+//            anchors.right:  parent.right
+//            spacing:        ScreenTools.defaultFontPixelWidth
+//            visible:        _camera.cameraAction.rawValue === 1
 
-            QGCLabel {
-                text:               qsTr("Time")
-                Layout.fillWidth:   true
-            }
-            FactTextField {
-                fact:                   _camera.cameraPhotoIntervalTime
-                Layout.preferredWidth:  _fieldWidth
-            }
-        }
+//            QGCLabel {
+//                text:               qsTr("Time")
+//                Layout.fillWidth:   true
+//            }
+//            FactTextField {
+//                fact:                   _camera.cameraPhotoIntervalTime
+//                Layout.preferredWidth:  _fieldWidth
+//            }
+//        }
 
         RowLayout {
             anchors.left:   parent.left
