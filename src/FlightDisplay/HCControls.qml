@@ -3,6 +3,7 @@ import QtPositioning            5.2
 import QtQuick.Layouts          1.2
 import QtQuick.Controls         1.2
 import QtQuick.Dialogs          1.2
+import QtQuick.Extras   1.4
 import QtGraphicalEffects       1.0
 
 import QGroundControl               1.0
@@ -13,7 +14,8 @@ import QGroundControl.Controls      1.0
 import QGroundControl.FactControls  1.0
 import QGroundControl.SettingsManager   1.0
 import QGroundControl.Palette       1.0
-
+import QGroundControl.FlightMap     1.0
+import "D:/gcs_work/qgroundcontrol/src/PlanView/"
 //waypoint editor code
 
 Rectangle{
@@ -27,16 +29,22 @@ Rectangle{
     property bool   flyThroughCommandsAllowed
     property var    cameraCalc
     property bool   _currentItem:               missionItem.isCurrentItem
-
+    readonly property real _radius: ScreenTools.defaultFontPixelHeight * 0.6
     property real   _margin:                    ScreenTools.defaultFontPixelWidth / 2
-
+    property bool   _showCameraSection:             (_waypointsOnlyMode || QGroundControl.corePlugin.showAdvancedUI) && !_controllerVehicle.apmFirmware
+    property var    _controllerVehicle:             _masterControler.controllerVehicle
+    property var    _masterControler:               masterController
+    property bool   _simpleMissionStart:            QGroundControl.corePlugin.options.showSimpleMissionStart
+    property var    _geoFenceController:                _planMasterController.geoFenceController
+    property var    myGeoFenceController
+    property var    flightMap
 
     signal remove
 
-    width: 226; height: 530 /*485*/
+    width: 226; height: 620/*530*/ /*485*/
     color: "#4c596a"
 //    radius: 4
-    radius:         _radius
+//    radius:         _radius
 //    opacity:        _currentItem ? 1.0 : 0.7
 //    border.width:   _readyForSave ? 0 : 2
 //    border.color:   qgcPal.warningText
@@ -46,6 +54,12 @@ Rectangle{
 
     property var itemList
 
+//    EditPositionDialogController {
+//        id: controller
+
+//        Component.onCompleted: initValues()
+//    }
+
     FocusScope {
         id:             currentItemScope
         anchors.fill:   parent
@@ -54,10 +68,24 @@ Rectangle{
             anchors.fill:   parent
             onClicked: {
                 currentItemScope.focus = true
-                _root.clicked()
+                _root_rect.clicked()
             }
         }
     }
+
+    Component{
+        id: camerasection1
+        CameraSection{}
+    }
+
+//    GeoFenceMapVisuals {
+//        map:                    editorMap
+//        myGeoFenceController:   _geoFenceController
+//        interactive:            _editingLayer == _layerGeoFence
+//        homePosition:           _missionController.plannedHomePosition
+//        planView:               true
+//        opacity:                _editingLayer != _layerGeoFence ? editorMap._nonInteractiveOpacity : 1
+//    }
 
 
     ColumnLayout{
@@ -119,6 +147,31 @@ Rectangle{
             }
     }
     ColumnLayout{
+//        QGCLabel {
+//            text: qsTr("Latitude")
+//        }
+//        FactTextField {
+//            fact:               missionItem.coordinate.latitude
+//            Layout.fillWidth:   true
+//        }
+
+//        QGCLabel {
+//            text: qsTr("Longitude")
+//        }
+//        FactTextField {
+//            fact:  missionItem.coordinate.longitude
+//            Layout.fillWidth: true
+//        }
+//        QGCButton {
+//            text:               qsTr("Set Geographic")
+//            Layout.alignment:   Qt.AlignRight
+//            Layout.columnSpan:  2
+//            onClicked: {
+//                missionItem.coordinate.setFromGeo()
+//                reject()
+//            }
+//        }
+
     Text {
         id: lat_text
         text: (missionItem !== null) ? "Lat :" + missionItem.coordinate.latitude : "Lat :"
@@ -295,13 +348,52 @@ Rectangle{
         fact:  missionItem.delayFact
     }
     }
+    Column {
+        Layout.fillWidth:   true
+        spacing:            _margin
+        visible:            !_simpleMissionStart
+
+// gimbal control
+    CameraSection {
+        id:         cameraSection
+        checked:    !_waypointsOnlyMode && missionItem.cameraSection.settingsSpecified
+//            visible:    _showCameraSection
+    }
 
 
-    SectionHeader {
-        id:             statsHeader
-        anchors.left:   parent.left
-        anchors.right:  parent.right
-        text:           qsTr("Patterns")
+//GeoFenceEditor{
+//    myGeoFenceController: _geoFenceController
+//    flightMap: editorMap
+//}
+//QGCButton {
+//    Layout.fillWidth:   true
+//    text:               qsTr("Polygon Fence")
+
+//    onClicked: {
+//        var rect = Qt.rect(flightMap.centerViewport.x, flightMap.centerViewport.y, flightMap.centerViewport.width, flightMap.centerViewport.height)
+//        var topLeftCoord = flightMap.toCoordinate(Qt.point(rect.x, rect.y), false /* clipToViewPort */)
+//        var bottomRightCoord = flightMap.toCoordinate(Qt.point(rect.x + rect.width, rect.y + rect.height), false /* clipToViewPort */)
+//        myGeoFenceController.addInclusionPolygon(topLeftCoord, bottomRightCoord)
+//    }
+//}
+
+
+}
+    Text {
+        id: pattern
+        text: qsTr("Patterns")
+        color: "white"
+    }
+
+//    SectionHeader {
+//        id:             statsHeader
+////        Layout.alignment: Qt.AlignLeft
+//        anchors.left:   parent.left
+//        anchors.right:  parent.right
+//        text:           qsTr("Patterns")
+//    }
+    Rectangle{ width:165; height:1
+               color: "white"
     }
 
 //pattern altitude and spacing setting(start)
@@ -361,18 +453,19 @@ Rectangle{
 // distance
     QGCLabel {
         text:       qsTr("Turnaround dist")
-        visible:    !forPresets
+//        visible:    !forPresets
     }
     FactTextField {
         Layout.fillWidth:   true
         fact:               missionItem.turnAroundDistance
-        visible:            !forPresets
+//        visible:            !forPresets
     }
 
 //patterns points rotate
 
     RowLayout{
-        anchors.left:   parent.left
+//        anchors.left:   parent.left
+        Layout.alignment: Qt.AlignLeft
 //        anchors.leftMargin: 5
         spacing:        _margin
 //        visible: /*patterns.checked*/ surveypattern &&  missionItem.sequenceNumber !== 0
@@ -400,6 +493,8 @@ Rectangle{
               font.pointSize: 10
           }
         }
+    }
+
 
 //    QGCButton {
 //        text:       qsTr("Rotate entry point")
@@ -409,7 +504,6 @@ Rectangle{
 //        }
 //        onClicked:  missionItem.rotateEntryPoint()
 //    }
-    }
 // delay feature for each waypoint(end)
 
 

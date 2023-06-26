@@ -119,7 +119,7 @@ Column {
         columnSpacing:  _margin
         rowSpacing:     _margin
         columns:        2
-        visible:        cameraCalc.isManualCamera
+//        visible:        cameraCalc.isManualCamera
 
         QGCLabel { text: distanceToSurfaceLabel }
         AltitudeFactTextField {
